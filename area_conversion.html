@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Area Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+            margin: 0;
+        }
+        .converter-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .converter {
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+        }
+        .converter-header {
+            background-color: #2c8b94;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .converter-body {
+            padding: 10px;
+        }
+        .converter-body div {
+            margin-bottom: 10px;
+        }
+        .converter-body label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .converter-body input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <div class="converter">
+            <div class="converter-header">
+                Area Converter
+            </div>
+            <div class="converter-body">
+                <div>
+                    <label for="are">Are</label>
+                    <input type="number" id="are" placeholder="Are" oninput="convertArea('are')">
+                </div>
+                <div>
+                    <label for="sqm">Sq. Mtrs</label>
+                    <input type="number" id="sqm" placeholder="Sq. Mtrs" oninput="convertArea('sqm')">
+                </div>
+                <div>
+                    <label for="acre">Acre</label>
+                    <input type="number" id="acre" placeholder="Acre" oninput="convertArea('acre')">
+                </div>
+                <div>
+                    <label for="sqft">Sq. Feet</label>
+                    <input type="number" id="sqft" placeholder="Sq. Feet" oninput="convertArea('sqft')">
+                </div>
+                <div>
+                    <label for="cent">Cents</label>
+                    <input type="number" id="cent" placeholder="Cents" oninput="convertArea('cent')">
+                </div>
+                <div>
+                    <label for="hectare">Hectare</label>
+                    <input type="number" id="hectare" placeholder="Hectare" oninput="convertArea('hectare')">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const conversionRates = {
+            are: 1,
+            sqm: 100,
+            acre: 0.0247105,
+            sqft: 1076.39,
+            cent: 2.47105,
+            hectare: 0.01
+        };
+
+        function convertArea(fromUnit) {
+            const value = parseFloat(document.getElementById(fromUnit).value);
+            if (isNaN(value)) return;
+
+            const areValue = value / conversionRates[fromUnit];
+
+            const units = ['are', 'sqm', 'acre', 'sqft', 'cent', 'hectare'];
+            units.forEach(unit => {
+                if (unit !== fromUnit) {
+                    document.getElementById(unit).value = (areValue * conversionRates[unit]).toFixed(4);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
