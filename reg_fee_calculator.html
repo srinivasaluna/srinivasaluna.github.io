@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Land Registration Calculator</title>
+
+<style>
+body { font-family: Arial; background:#eef1f5; margin:0; }
+
+.container {
+    max-width:520px;
+    margin:auto;
+    padding:15px;
+}
+
+.card {
+    background:#fff;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
+}
+
+/* FIXED GRID */
+.grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.input-group label {
+    font-size:13px;
+    display:block;
+    margin-bottom:4px;
+}
+
+input, select {
+    width:100%;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+
+/* Inline field combo */
+.inline {
+    display:flex;
+    gap:6px;
+}
+
+.inline input {
+    flex:2;
+}
+
+.inline select {
+    flex:1;
+}
+
+button {
+    padding:12px;
+    border:none;
+    border-radius:6px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.btn-row {
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+.add { background:#2e7d32; color:#fff; }
+.clear { background:#c62828; color:#fff; }
+
+table {
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+}
+
+th, td {
+    padding:8px;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+}
+
+.action { cursor:pointer; margin:0 4px; }
+
+.total {
+    text-align:right;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.editing input, .editing select {
+    padding:6px;
+    font-size:11px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+<h3>Land Registration Calculator</h3>
+
+<div class="grid">
+
+<div class="input-group">
+<label>Survey No</label>
+<input id="survey">
+</div>
+
+<div class="input-group">
+<label>Subdiv No</label>
+<input id="subdiv">
+</div>
+
+<div class="input-group">
+<label>Area</label>
+<div class="inline">
+<input type="number" id="area">
+<select id="areaUnit">
+<option>Acre</option>
+<option>Cent</option>
+<option>Hectare</option>
+</select>
+</div>
+</div>
+
+<div class="input-group">
+<label>Guideline Value</label>
+<div class="inline">
+<input type="number" id="value">
+<select id="valueUnit">
+<option>Acre</option>
+<option>Cent</option>
+<option>Hectare</option>
+</select>
+</div>
+</div>
+
+<div class="input-group">
+<label>Stamp %</label>
+<input type="number" id="stamp" value="7">
+</div>
+
+<div class="input-group">
+<label>Reg %</label>
+<input type="number" id="reg" value="2">
+</div>
+
+</div>
+
+<div class="btn-row">
+<button class="add" onclick="addRow()">Add</button>
+<button class="clear" onclick="clearAll()">Clear</button>
+</div>
+
+</div>
+
+<div class="card">
+
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Survey</th>
+<th>Subdiv</th>
+<th>Area</th>
+<th>Value</th>
+<th>Total</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
+<div class="total">
+Grand Total: ₹ <span id="grand">0</span>
+</div>
+
+</div>
+
+</div>
+
+<script>
+let data=[];
+
+function toAcre(v,u){
+    if(u==="Cent") return v/100;
+    if(u==="Hectare") return v*2.47105;
+    return v;
+}
+
+function fromAcre(v,u){
+    if(u==="Cent") return v*100;
+    if(u==="Hectare") return v/2.47105;
+    return v;
+}
+
+function calc(d){
+    let acre = toAcre(d.area,d.areaUnit);
+    let conv = fromAcre(acre,d.valueUnit);
+    d.prop = conv * d.value;
+    d.total = d.prop + (d.prop*d.stamp/100) + (d.prop*d.reg/100);
+}
+
+function format(n){
+    return Number(n).toLocaleString('en-IN');
+}
+
+function addRow(){
+    let d={
+        survey:survey.value,
+        subdiv:subdiv.value,
+        area:+area.value,
+        areaUnit:areaUnit.value,
+        value:+value.value,
+        valueUnit:valueUnit.value,
+        stamp:+stamp.value,
+        reg:+reg.value
+    };
+
+    if(!d.area || !d.value) return alert("Enter valid");
+
+    calc(d);
+    data.push(d);
+    render();
+}
+
+function render(){
+    let html="";
+    let grand=0;
+
+    data.forEach((d,i)=>{
+        grand+=d.total;
+
+        html+=`
+        <tr>
+        <td>${i+1}</td>
+        <td>${d.survey}</td>
+        <td>${d.subdiv}</td>
+        <td>${d.area} ${d.areaUnit}</td>
+        <td>₹ ${format(d.prop)}</td>
+        <td>₹ ${format(d.total)}</td>
+        <td>
+            <span class="action" onclick="editRow(${i})">✏️</span>
+            <span class="action" onclick="deleteRow(${i})">🗑️</span>
+        </td>
+        </tr>`;
+    });
+
+    tbody.innerHTML=html;
+    grandEl.innerText=format(grand);
+}
+
+function editRow(i){
+    let d=data[i];
+    let row=tbody.rows[i];
+
+    row.classList.add("editing");
+
+    row.innerHTML=`
+    <td>${i+1}</td>
+    <td><input value="${d.survey}"></td>
+    <td><input value="${d.subdiv}"></td>
+    <td>
+        <div class="inline">
+            <input type="number" value="${d.area}">
+            <select>
+                <option ${d.areaUnit==="Acre"?"selected":""}>Acre</option>
+                <option ${d.areaUnit==="Cent"?"selected":""}>Cent</option>
+                <option ${d.areaUnit==="Hectare"?"selected":""}>Hectare</option>
+            </select>
+        </div>
+    </td>
+    <td>
+        <div class="inline">
+            <input type="number" value="${d.value}">
+            <select>
+                <option ${d.valueUnit==="Acre"?"selected":""}>Acre</option>
+                <option ${d.valueUnit==="Cent"?"selected":""}>Cent</option>
+                <option ${d.valueUnit==="Hectare"?"selected":""}>Hectare</option>
+            </select>
+        </div>
+    </td>
+    <td colspan="1">Auto</td>
+    <td>
+        <span class="action" onclick="saveRow(${i}, this)">💾</span>
+    </td>`;
+}
+
+function saveRow(i,btn){
+    let row=btn.closest("tr");
+    let inputs=row.querySelectorAll("input,select");
+
+    let d=data[i];
+
+    d.survey=inputs[0].value;
+    d.subdiv=inputs[1].value;
+    d.area=+inputs[2].value;
+    d.areaUnit=inputs[3].value;
+    d.value=+inputs[4].value;
+    d.valueUnit=inputs[5].value;
+
+    calc(d);
+    render();
+}
+
+function deleteRow(i){
+    data.splice(i,1);
+    render();
+}
+
+function clearAll(){
+    data=[];
+    render();
+}
+
+const survey=document.getElementById("survey");
+const subdiv=document.getElementById("subdiv");
+const area=document.getElementById("area");
+const areaUnit=document.getElementById("areaUnit");
+const value=document.getElementById("value");
+const valueUnit=document.getElementById("valueUnit");
+const stamp=document.getElementById("stamp");
+const reg=document.getElementById("reg");
+const tbody=document.getElementById("tbody");
+const grandEl=document.getElementById("grand");
+</script>
+
+</body>
+</html>
