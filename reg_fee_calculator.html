@@ -145,55 +145,22 @@
     padding: 0 12px;
     margin-top: 12px;
   }
-  .zoom-bar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-    margin-bottom: 6px;
-  }
-  .zoom-btn {
-    background: var(--blue);
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    width: 28px;
-    height: 28px;
-    font-size: 16px;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s;
-    flex-shrink: 0;
-  }
-  .zoom-btn:hover { background: var(--blue-lt); }
-  .zoom-btn:active { transform: scale(0.93); }
-  .zoom-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    min-width: 34px;
-    text-align: center;
-  }
   .table-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
+    touch-action: pan-y pinch-zoom;
+    border-radius: 6px;
   }
   .table-scaler {
     transform-origin: top left;
-    display: inline-block;
-    min-width: 100%;
-    transition: transform 0.2s ease;
+    width: 100%;
   }
-
   table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     font-size: 11px;
     white-space: nowrap;
+    table-layout: fixed;
   }
 
   thead tr {
@@ -513,12 +480,7 @@
 
 <!-- Table -->
 <div class="table-outer">
-  <div class="zoom-bar">
-    <button class="zoom-btn" onclick="zoomTable(-1)" title="Zoom out">−</button>
-    <span class="zoom-label" id="zoomLabel">100%</span>
-    <button class="zoom-btn" onclick="zoomTable(1)" title="Zoom in">+</button>
-  </div>
-  <div class="table-wrap">
+  <div class="table-wrap" id="tableWrap">
     <div class="table-scaler" id="tableScaler">
       <table id="mainTable">
     <thead>
@@ -640,6 +602,8 @@ function render() {
   </td></tr>`;
 
   tbody.innerHTML = html;
+  // Re-fit table after DOM update
+  requestAnimationFrame(autoFitTable);
 
   // Footer totals
   if (rows.length > 0) {
@@ -811,19 +775,75 @@ function deleteRow(id) {
   render();
 }
 
-// Zoom controls
-let zoomLevel = 1.0;
-const ZOOM_STEPS = [0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.5];
+// ── Auto-fit table to container width, then allow pinch zoom ──
+let currentScale = 1;
+let pinchStartDist = 0;
+let pinchStartScale = 1;
 
-function zoomTable(dir) {
-  const idx = ZOOM_STEPS.indexOf(zoomLevel);
-  const newIdx = Math.min(Math.max(idx + dir, 0), ZOOM_STEPS.length - 1);
-  zoomLevel = ZOOM_STEPS[newIdx];
+function autoFitTable() {
+  const wrap = document.getElementById('tableWrap');
   const scaler = document.getElementById('tableScaler');
-  scaler.style.transform = `scale(${zoomLevel})`;
-  scaler.style.width = `${(1 / zoomLevel) * 100}%`;
-  document.getElementById('zoomLabel').textContent = Math.round(zoomLevel * 100) + '%';
+  if (!scaler || !wrap) return;
+  // Reset to natural size to measure true width
+  scaler.style.transform = '';
+  const naturalW = scaler.scrollWidth;
+  const availW   = wrap.clientWidth;
+  if (naturalW > availW) {
+    currentScale = availW / naturalW;
+    scaler.style.transform = `scale(${currentScale})`;
+    scaler.style.transformOrigin = 'top left';
+    // Collapse wrapper height to scaled height
+    scaler.style.width = naturalW + 'px';
+    wrap.style.height  = (scaler.scrollHeight * currentScale) + 'px';
+  } else {
+    currentScale = 1;
+    scaler.style.width = '100%';
+    wrap.style.height  = '';
+  }
 }
+
+function applyScale(scale) {
+  const wrap   = document.getElementById('tableWrap');
+  const scaler = document.getElementById('tableScaler');
+  const naturalW = scaler.scrollWidth;
+  currentScale = Math.min(Math.max(scale, 0.4), 3.0);
+  scaler.style.transform = `scale(${currentScale})`;
+  scaler.style.transformOrigin = 'top left';
+  scaler.style.width = naturalW + 'px';
+  wrap.style.height  = (scaler.scrollHeight * currentScale) + 'px';
+  // Allow horizontal scroll if zoomed in beyond fit
+  wrap.style.overflowX = currentScale > (wrap.clientWidth / naturalW) ? 'auto' : 'hidden';
+}
+
+// Pinch zoom via touch events on the table wrapper
+document.addEventListener('DOMContentLoaded', () => {
+  const wrap = document.getElementById('tableWrap');
+  wrap.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      pinchStartDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      pinchStartScale = currentScale;
+    }
+  }, { passive: true });
+
+  wrap.addEventListener('touchmove', e => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      applyScale(pinchStartScale * (dist / pinchStartDist));
+    }
+  }, { passive: false });
+
+  autoFitTable();
+});
+
+// Re-fit on orientation change
+window.addEventListener('resize', autoFitTable);
 
 // Initial render
 render();
