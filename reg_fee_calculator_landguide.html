@@ -469,6 +469,18 @@
   }
   .summary-grand .summary-lbl { color: rgba(255,255,255,0.7); font-style: italic; font-size: 10px; }
   .summary-grand .summary-val { color: var(--gold); font-size: 14px; }
+
+  /* ── Print / PDF styles ── */
+  @media print {
+    .config-bar    { display: none !important; }
+    .add-btn-outer { display: none !important; }
+    .row-actions   { display: none !important; }
+    thead th:last-child { display: none !important; }
+    tbody td:last-child { display: none !important; }
+    tfoot td:last-child { display: none !important; }
+    * { -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important; }
+  }
 </style>
 </head>
 <body>
@@ -884,8 +896,6 @@ const STORAGE_KEY = 'regCalcDefaults';
 function saveDefaults() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      stamp:     document.getElementById('globalStamp').value,
-      reg:       document.getElementById('globalReg').value,
       areaUnit:  document.getElementById('globalAreaUnit').value,
       valueUnit: document.getElementById('globalValueUnit').value,
     }));
@@ -896,15 +906,13 @@ function restoreDefaults() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!saved) return;
-    if (saved.stamp)     document.getElementById('globalStamp').value = saved.stamp;
-    if (saved.reg)       document.getElementById('globalReg').value = saved.reg;
     if (saved.areaUnit)  document.getElementById('globalAreaUnit').value = saved.areaUnit;
     if (saved.valueUnit) document.getElementById('globalValueUnit').value = saved.valueUnit;
   } catch(e) {}
 }
 
-// Attach change listeners to all 4 fields
-['globalStamp','globalReg','globalAreaUnit','globalValueUnit'].forEach(id => {
+// Attach change listeners only to fields that exist
+['globalAreaUnit','globalValueUnit'].forEach(id => {
   document.getElementById(id).addEventListener('change', saveDefaults);
 });
 
@@ -915,6 +923,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Re-fit on orientation change
 window.addEventListener('resize', autoFitTable);
+
+// ── Fix inline transform before printing so table is visible in PDF ──
+window.addEventListener('beforeprint', () => {
+  const wrap   = document.getElementById('tableWrap');
+  const scaler = document.getElementById('tableScaler');
+  if (scaler) {
+    scaler.dataset.savedTransform = scaler.style.transform;
+    scaler.dataset.savedWidth     = scaler.style.width;
+    scaler.style.transform = 'none';
+    scaler.style.width     = '100%';
+  }
+  if (wrap) {
+    wrap.dataset.savedHeight   = wrap.style.height;
+    wrap.style.height   = 'auto';
+    wrap.style.overflow = 'visible';
+  }
+});
+
+window.addEventListener('afterprint', () => {
+  const wrap   = document.getElementById('tableWrap');
+  const scaler = document.getElementById('tableScaler');
+  if (scaler) {
+    scaler.style.transform = scaler.dataset.savedTransform || '';
+    scaler.style.width     = scaler.dataset.savedWidth     || '';
+  }
+  if (wrap) {
+    wrap.style.height   = wrap.dataset.savedHeight || '';
+    wrap.style.overflow = '';
+  }
+});
 
 // Restore saved defaults then render
 restoreDefaults();
