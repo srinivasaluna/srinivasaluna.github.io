@@ -147,7 +147,7 @@
   }
   .table-wrap {
     overflow: hidden;
-    touch-action: pan-y pinch-zoom;
+    touch-action: pan-y;
     border-radius: 6px;
   }
   .table-scaler {
@@ -817,28 +817,6 @@ function applyScale(scale) {
 
 // Pinch zoom via touch events on the table wrapper
 document.addEventListener('DOMContentLoaded', () => {
-  const wrap = document.getElementById('tableWrap');
-  wrap.addEventListener('touchstart', e => {
-    if (e.touches.length === 2) {
-      pinchStartDist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      pinchStartScale = currentScale;
-    }
-  }, { passive: true });
-
-  wrap.addEventListener('touchmove', e => {
-    if (e.touches.length === 2) {
-      e.preventDefault();
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      applyScale(pinchStartScale * (dist / pinchStartDist));
-    }
-  }, { passive: false });
-
   autoFitTable();
 });
 
