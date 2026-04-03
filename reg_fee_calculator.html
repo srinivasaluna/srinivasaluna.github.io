@@ -2,336 +2,705 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Land Registration Calculator</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-body { font-family: Arial; background:#eef1f5; margin:0; }
+  :root {
+    --ink:       #1a1f2e;
+    --paper:     #faf8f3;
+    --ledger:    #f0ece0;
+    --rule:      #d4c9a8;
+    --accent:    #b5451b;
+    --gold:      #c8922a;
+    --blue:      #1e3a5f;
+    --blue-lt:   #2a5298;
+    --green:     #1e5c2f;
+    --muted:     #7a7060;
+    --shadow:    0 2px 12px rgba(26,31,46,0.12);
+  }
 
-.container {
-    max-width:520px;
-    margin:auto;
-    padding:15px;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-.card {
-    background:#fff;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:15px;
-}
+  body {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    background: var(--ledger);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
 
-/* FIXED GRID */
-.grid {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-}
+  /* ── Header ── */
+  .header {
+    background: var(--blue);
+    padding: 14px 16px 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0, transparent 40px,
+      rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px
+    );
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+  }
+  .header h1 {
+    font-size: 15px;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+  .header h1 span {
+    display: block;
+    font-size: 10px;
+    font-style: italic;
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+  }
+  .rates-pill {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .rate-chip {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 4px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    cursor: pointer;
+  }
+  .rate-chip label {
+    font-size: 8px;
+    color: rgba(255,255,255,0.55);
+    font-style: italic;
+    pointer-events: none;
+  }
+  .rate-chip input {
+    background: transparent;
+    border: none;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    width: 36px;
+    text-align: center;
+    outline: none;
+  }
+  .rate-chip input:focus { color: #fff; }
+  .rate-chip span {
+    font-size: 8px;
+    color: rgba(255,255,255,0.4);
+  }
 
-.input-group label {
-    font-size:13px;
-    display:block;
-    margin-bottom:4px;
-}
+  /* ── Grand Total bar ── */
+  .grand-bar {
+    background: var(--blue);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+  .grand-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.5);
+    font-style: italic;
+  }
+  .grand-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gold);
+  }
+  .grand-breakdown {
+    display: flex;
+    gap: 12px;
+  }
+  .grand-mini {
+    text-align: right;
+  }
+  .grand-mini .lbl { font-size: 8px; color: rgba(255,255,255,0.4); }
+  .grand-mini .val { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.65); }
 
-input, select {
-    width:100%;
-    padding:10px;
-    border:1px solid #ccc;
-    border-radius:6px;
-}
+  /* ── Table ── */
+  .table-wrap {
+    padding: 0 12px;
+    margin-top: 12px;
+  }
 
-/* Inline field combo */
-.inline {
-    display:flex;
-    gap:6px;
-}
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 11px;
+  }
 
-.inline input {
-    flex:2;
-}
+  thead tr {
+    background: var(--blue);
+    color: rgba(255,255,255,0.75);
+  }
+  thead th {
+    padding: 7px 6px;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    text-align: left;
+    white-space: nowrap;
+  }
+  thead th:first-child { border-radius: 6px 0 0 0; }
+  thead th:last-child  { border-radius: 0 6px 0 0; text-align: center; }
+  thead th.num { text-align: right; }
 
-.inline select {
-    flex:1;
-}
+  /* Body rows */
+  tbody tr.data-row {
+    background: var(--paper);
+    transition: background 0.15s;
+  }
+  tbody tr.data-row:nth-child(even) { background: #f5f1e6; }
+  tbody tr.data-row:hover { background: #ede8d6; }
 
-button {
-    padding:12px;
-    border:none;
-    border-radius:6px;
-    font-weight:bold;
-    cursor:pointer;
-}
+  tbody td {
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: middle;
+  }
+  tbody td .cell {
+    padding: 8px 6px;
+    display: block;
+  }
+  tbody td.num .cell { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; }
+  tbody td .survey-text { font-weight: 700; font-size: 11px; color: var(--blue); }
+  tbody td .area-text { color: var(--muted); font-size: 10px; }
+  tbody td .total-text { color: var(--accent); font-weight: 700; font-size: 11px; }
+  tbody td .sub-text { font-size: 9px; color: var(--muted); display: block; }
 
-.btn-row {
-    display:flex;
-    gap:10px;
-    margin-top:10px;
-}
+  /* Edit row */
+  tbody tr.edit-row td {
+    background: #fffdf5;
+    border-bottom: 2px solid var(--gold);
+    padding: 0;
+  }
+  .edit-cell {
+    padding: 6px 4px;
+  }
 
-.add { background:#2e7d32; color:#fff; }
-.clear { background:#c62828; color:#fff; }
+  .row-input {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 12px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 5px 6px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .row-input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(200,146,42,0.15); }
+  .row-select {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 11px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 5px 4px;
+    width: 100%;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7060'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+  }
+  .row-select:focus { border-color: var(--gold); }
 
-table {
-    width:100%;
-    border-collapse:collapse;
-    font-size:12px;
-}
+  .field-label {
+    font-size: 8.5px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 2px;
+    display: block;
+  }
 
-th, td {
-    padding:8px;
-    border-bottom:1px solid #ddd;
-    text-align:center;
-}
+  /* Edit row layout */
+  .edit-section {
+    display: grid;
+    gap: 6px;
+    padding: 8px 10px;
+  }
+  .edit-row-full { grid-column: 1 / -1; }
+  .edit-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .edit-inline { display: flex; gap: 4px; }
+  .edit-inline .row-input { flex: 1.8; }
+  .edit-inline .row-select { flex: 1; }
 
-.action { cursor:pointer; margin:0 4px; }
+  .edit-actions {
+    display: flex;
+    gap: 6px;
+    padding: 0 10px 10px;
+  }
+  .btn-save, .btn-cancel {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-save { background: var(--green); color: #fff; }
+  .btn-cancel { background: transparent; color: var(--muted); border: 1px solid var(--rule); }
+  .btn-save:active, .btn-cancel:active { transform: scale(0.97); }
 
-.total {
-    text-align:right;
-    font-weight:bold;
-    margin-top:10px;
-}
+  /* Row actions */
+  .row-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  .act-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px;
+    opacity: 0.65;
+    transition: opacity 0.15s, transform 0.1s;
+    line-height: 1;
+  }
+  .act-btn:hover { opacity: 1; transform: scale(1.15); }
 
-.editing input, .editing select {
-    padding:6px;
-    font-size:11px;
-}
+  /* Add row */
+  tr.add-row td {
+    background: var(--ledger);
+    border-bottom: none;
+  }
+  .btn-add {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 10px 4px;
+    padding: 10px 14px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    width: calc(100% - 20px);
+    justify-content: center;
+    letter-spacing: 0.05em;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-add:hover { background: var(--blue-lt); }
+  .btn-add:active { transform: scale(0.98); }
+  .btn-add .plus {
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 300;
+    color: var(--gold);
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 32px; margin-bottom: 8px; }
+  .empty-state p { font-size: 12px; font-style: italic; }
+
+  /* Totals footer */
+  tfoot td {
+    background: var(--ink);
+    color: rgba(255,255,255,0.85);
+    padding: 8px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    border: none;
+  }
+  tfoot td:first-child { border-radius: 0 0 0 6px; }
+  tfoot td:last-child  { border-radius: 0 0 6px 0; }
+  tfoot .total-label { font-style: italic; font-size: 9px; font-family: 'Libre Baskerville', serif; color: rgba(255,255,255,0.5); }
+  tfoot .total-num { text-align: right; }
+  tfoot .grand-amt { color: var(--gold); font-weight: 600; font-size: 13px; }
+
+  /* Stamp/Reg config footer */
+  .config-bar {
+    margin: 12px 12px 0;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .config-bar label {
+    font-size: 10px;
+    font-style: italic;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+  .config-bar input {
+    background: var(--ledger);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 4px 6px;
+    width: 50px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    outline: none;
+    text-align: center;
+  }
+  .config-bar input:focus { border-color: var(--gold); }
+  .config-divider { width: 1px; height: 24px; background: var(--rule); }
+  .config-title { font-size: 9px; color: var(--muted); font-style: italic; margin-right: 4px; }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-
-<div class="card">
-<h3>Land Registration Calculator</h3>
-
-<div class="grid">
-
-<div class="input-group">
-<label>Survey No</label>
-<input id="survey">
+<div class="header">
+  <div class="header-top">
+    <h1>
+      Land Registration
+      <span>Stamp Duty &amp; Fee Calculator</span>
+    </h1>
+  </div>
 </div>
 
-<div class="input-group">
-<label>Subdiv No</label>
-<input id="subdiv">
+<!-- Global rates config -->
+<div class="config-bar">
+  <span class="config-title">Default Rates</span>
+  <label>
+    Stamp Duty
+    <input type="number" id="globalStamp" value="7" min="0" max="100" step="0.5"> %
+  </label>
+  <div class="config-divider"></div>
+  <label>
+    Reg. Fee
+    <input type="number" id="globalReg" value="2" min="0" max="100" step="0.5"> %
+  </label>
 </div>
 
-<div class="input-group">
-<label>Area</label>
-<div class="inline">
-<input type="number" id="area">
-<select id="areaUnit">
-<option>Acre</option>
-<option>Cent</option>
-<option>Hectare</option>
-</select>
-</div>
-</div>
-
-<div class="input-group">
-<label>Guideline Value</label>
-<div class="inline">
-<input type="number" id="value">
-<select id="valueUnit">
-<option>Acre</option>
-<option>Cent</option>
-<option>Hectare</option>
-</select>
-</div>
-</div>
-
-<div class="input-group">
-<label>Stamp %</label>
-<input type="number" id="stamp" value="7">
-</div>
-
-<div class="input-group">
-<label>Reg %</label>
-<input type="number" id="reg" value="2">
-</div>
-
-</div>
-
-<div class="btn-row">
-<button class="add" onclick="addRow()">Add</button>
-<button class="clear" onclick="clearAll()">Clear</button>
-</div>
-
-</div>
-
-<div class="card">
-
-<table>
-<thead>
-<tr>
-<th>#</th>
-<th>Survey</th>
-<th>Subdiv</th>
-<th>Area</th>
-<th>Value</th>
-<th>Total</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-
-<div class="total">
-Grand Total: ₹ <span id="grand">0</span>
-</div>
-
-</div>
-
+<!-- Table -->
+<div class="table-wrap">
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th style="width:24px">#</th>
+        <th>Survey / Subdiv</th>
+        <th>Area</th>
+        <th class="num">Guideline</th>
+        <th class="num">Stamp</th>
+        <th class="num">Reg</th>
+        <th class="num">Total</th>
+        <th style="width:52px; text-align:center">Act</th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      <!-- rows injected here -->
+    </tbody>
+    <tfoot id="tfoot" style="display:none">
+      <tr>
+        <td colspan="4" class="total-label">Grand Total</td>
+        <td class="total-num" id="footStamp">—</td>
+        <td class="total-num" id="footReg">—</td>
+        <td class="total-num grand-amt" id="footTotal">—</td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
 </div>
 
 <script>
-let data=[];
+let rows = [];
+let editingId = null;
+let nextId = 1;
 
-function toAcre(v,u){
-    if(u==="Cent") return v/100;
-    if(u==="Hectare") return v*2.47105;
-    return v;
+const UNITS = ['Acre','Cent','Hectare','Sq.Ft','Sq.m'];
+
+// Conversion: all to Acre base
+function toAcre(v, u) {
+  switch(u) {
+    case 'Cent':    return v / 100;
+    case 'Hectare': return v * 2.47105;
+    case 'Sq.Ft':   return v / 43560;
+    case 'Sq.m':    return v / 4046.86;
+    default:        return v; // Acre
+  }
+}
+function fromAcre(a, u) {
+  switch(u) {
+    case 'Cent':    return a * 100;
+    case 'Hectare': return a / 2.47105;
+    case 'Sq.Ft':   return a * 43560;
+    case 'Sq.m':    return a * 4046.86;
+    default:        return a;
+  }
 }
 
-function fromAcre(v,u){
-    if(u==="Cent") return v*100;
-    if(u==="Hectare") return v/2.47105;
-    return v;
+function calcRow(r) {
+  const acre = toAcre(r.area, r.areaUnit);
+  const converted = fromAcre(acre, r.valueUnit);
+  r.propValue = converted * r.guideValue;
+  r.stampAmt  = r.propValue * r.stampPct / 100;
+  r.regAmt    = r.propValue * r.regPct / 100;
+  r.total     = r.propValue + r.stampAmt + r.regAmt;
 }
 
-function calc(d){
-    let acre = toAcre(d.area,d.areaUnit);
-    let conv = fromAcre(acre,d.valueUnit);
-    d.prop = conv * d.value;
-    d.total = d.prop + (d.prop*d.stamp/100) + (d.prop*d.reg/100);
+function fmt(n) {
+  if (!n && n !== 0) return '—';
+  return '₹' + Number(n.toFixed(0)).toLocaleString('en-IN');
+}
+function fmtShort(n) {
+  if (!n && n !== 0) return '—';
+  if (n >= 1e7) return '₹' + (n/1e7).toFixed(2) + 'Cr';
+  if (n >= 1e5) return '₹' + (n/1e5).toFixed(2) + 'L';
+  return '₹' + Number(n.toFixed(0)).toLocaleString('en-IN');
 }
 
-function format(n){
-    return Number(n).toLocaleString('en-IN');
+function unitOpts(selected) {
+  return UNITS.map(u => `<option value="${u}" ${u===selected?'selected':''}>${u}</option>`).join('');
 }
 
-function addRow(){
-    let d={
-        survey:survey.value,
-        subdiv:subdiv.value,
-        area:+area.value,
-        areaUnit:areaUnit.value,
-        value:+value.value,
-        valueUnit:valueUnit.value,
-        stamp:+stamp.value,
-        reg:+reg.value
-    };
-
-    if(!d.area || !d.value) return alert("Enter valid");
-
-    calc(d);
-    data.push(d);
-    render();
+function getGlobalRates() {
+  return {
+    stamp: parseFloat(document.getElementById('globalStamp').value) || 7,
+    reg:   parseFloat(document.getElementById('globalReg').value) || 2,
+  };
 }
 
-function render(){
-    let html="";
-    let grand=0;
+function render() {
+  const tbody = document.getElementById('tbody');
+  const tfoot = document.getElementById('tfoot');
+  let html = '';
 
-    data.forEach((d,i)=>{
-        grand+=d.total;
+  if (rows.length === 0) {
+    html += `<tr><td colspan="8"><div class="empty-state">
+      <div class="icon">📋</div>
+      <p>No entries yet.<br>Tap <strong>Add New Entry</strong> below to start.</p>
+    </div></td></tr>`;
+  }
 
-        html+=`
-        <tr>
-        <td>${i+1}</td>
-        <td>${d.survey}</td>
-        <td>${d.subdiv}</td>
-        <td>${d.area} ${d.areaUnit}</td>
-        <td>₹ ${format(d.prop)}</td>
-        <td>₹ ${format(d.total)}</td>
-        <td>
-            <span class="action" onclick="editRow(${i})">✏️</span>
-            <span class="action" onclick="deleteRow(${i})">🗑️</span>
-        </td>
-        </tr>`;
-    });
+  rows.forEach((r, i) => {
+    if (editingId === r.id) {
+      html += renderEditRow(r, i);
+    } else {
+      html += renderDataRow(r, i);
+    }
+  });
 
-    tbody.innerHTML=html;
-    grandEl.innerText=format(grand);
+  // Add button row
+  html += `<tr class="add-row"><td colspan="8">
+    <button class="btn-add" onclick="addNewRow()">
+      <span class="plus">＋</span> Add New Entry
+    </button>
+  </td></tr>`;
+
+  tbody.innerHTML = html;
+
+  // Footer totals
+  if (rows.length > 0) {
+    let totStamp = 0, totReg = 0, totAll = 0;
+    rows.forEach(r => { totStamp += r.stampAmt||0; totReg += r.regAmt||0; totAll += r.total||0; });
+    document.getElementById('footStamp').textContent = fmtShort(totStamp);
+    document.getElementById('footReg').textContent   = fmtShort(totReg);
+    document.getElementById('footTotal').textContent = fmtShort(totAll);
+    tfoot.style.display = '';
+  } else {
+    tfoot.style.display = 'none';
+  }
 }
 
-function editRow(i){
-    let d=data[i];
-    let row=tbody.rows[i];
+function renderDataRow(r, i) {
+  return `<tr class="data-row" id="dr-${r.id}">
+    <td><div class="cell" style="color:var(--muted);font-size:10px">${i+1}</div></td>
+    <td><div class="cell">
+      <span class="survey-text">${r.survey || '—'}</span>
+    </div></td>
+    <td><div class="cell area-text">${r.area} ${r.areaUnit}</div></td>
+    <td class="num"><div class="cell">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px">${fmtShort(r.propValue)}</span>
+      <span class="sub-text">@${r.guideValue.toLocaleString('en-IN')}/${r.valueUnit}</span>
+    </div></td>
+    <td class="num"><div class="cell" style="color:var(--blue-lt)">${fmtShort(r.stampAmt)}<span class="sub-text">${r.stampPct}%</span></div></td>
+    <td class="num"><div class="cell" style="color:var(--muted)">${fmtShort(r.regAmt)}<span class="sub-text">${r.regPct}%</span></div></td>
+    <td class="num"><div class="cell total-text">${fmtShort(r.total)}</div></td>
+    <td><div class="cell">
+      <div class="row-actions">
+        <button class="act-btn" title="Edit" onclick="editRow(${r.id})">✏️</button>
+        <button class="act-btn" title="Delete" onclick="deleteRow(${r.id})">🗑️</button>
+      </div>
+    </div></td>
+  </tr>`;
+}
 
-    row.classList.add("editing");
-
-    row.innerHTML=`
-    <td>${i+1}</td>
-    <td><input value="${d.survey}"></td>
-    <td><input value="${d.subdiv}"></td>
-    <td>
-        <div class="inline">
-            <input type="number" value="${d.area}">
-            <select>
-                <option ${d.areaUnit==="Acre"?"selected":""}>Acre</option>
-                <option ${d.areaUnit==="Cent"?"selected":""}>Cent</option>
-                <option ${d.areaUnit==="Hectare"?"selected":""}>Hectare</option>
-            </select>
+function renderEditRow(r, i) {
+  return `<tr class="edit-row" id="er-${r.id}">
+    <td colspan="8">
+      <div class="edit-section" style="grid-template-columns:1fr 1fr;">
+        <div class="edit-row-full">
+          <span class="field-label">Survey Number / Subdivision</span>
+          <div style="display:flex;gap:6px">
+            <input class="row-input" id="e-survey-${r.id}" placeholder="Survey No." value="${r.survey}" style="flex:1">
+            <input class="row-input" id="e-subdiv-${r.id}" placeholder="Subdiv" value="${r.subdiv||''}" style="flex:0.6">
+          </div>
         </div>
-    </td>
-    <td>
-        <div class="inline">
-            <input type="number" value="${d.value}">
-            <select>
-                <option ${d.valueUnit==="Acre"?"selected":""}>Acre</option>
-                <option ${d.valueUnit==="Cent"?"selected":""}>Cent</option>
-                <option ${d.valueUnit==="Hectare"?"selected":""}>Hectare</option>
-            </select>
+
+        <div>
+          <span class="field-label">Area</span>
+          <div class="edit-inline">
+            <input class="row-input" type="number" id="e-area-${r.id}" placeholder="0.00" value="${r.area}" style="flex:1.5">
+            <select class="row-select" id="e-aunit-${r.id}" style="flex:1">${unitOpts(r.areaUnit)}</select>
+          </div>
         </div>
+
+        <div>
+          <span class="field-label">Guideline Value (per unit)</span>
+          <div class="edit-inline">
+            <input class="row-input" type="number" id="e-gval-${r.id}" placeholder="0" value="${r.guideValue}" style="flex:1.5">
+            <select class="row-select" id="e-vunit-${r.id}" style="flex:1">${unitOpts(r.valueUnit)}</select>
+          </div>
+        </div>
+
+        <div>
+          <span class="field-label">Stamp Duty %</span>
+          <input class="row-input" type="number" id="e-stamp-${r.id}" value="${r.stampPct}" placeholder="7">
+        </div>
+
+        <div>
+          <span class="field-label">Registration Fee %</span>
+          <input class="row-input" type="number" id="e-reg-${r.id}" value="${r.regPct}" placeholder="2">
+        </div>
+      </div>
+      <div class="edit-actions">
+        <button class="btn-save" onclick="saveRow(${r.id})">Save Entry</button>
+        <button class="btn-cancel" onclick="cancelEdit(${r.id})">Cancel</button>
+      </div>
     </td>
-    <td colspan="1">Auto</td>
-    <td>
-        <span class="action" onclick="saveRow(${i}, this)">💾</span>
-    </td>`;
+  </tr>`;
 }
 
-function saveRow(i,btn){
-    let row=btn.closest("tr");
-    let inputs=row.querySelectorAll("input,select");
-
-    let d=data[i];
-
-    d.survey=inputs[0].value;
-    d.subdiv=inputs[1].value;
-    d.area=+inputs[2].value;
-    d.areaUnit=inputs[3].value;
-    d.value=+inputs[4].value;
-    d.valueUnit=inputs[5].value;
-
-    calc(d);
-    render();
+function addNewRow() {
+  const rates = getGlobalRates();
+  const newRow = {
+    id: nextId++,
+    survey: '',
+    subdiv: '',
+    area: '',
+    areaUnit: 'Acre',
+    guideValue: '',
+    valueUnit: 'Acre',
+    stampPct: rates.stamp,
+    regPct: rates.reg,
+    propValue: 0, stampAmt: 0, regAmt: 0, total: 0
+  };
+  rows.push(newRow);
+  editingId = newRow.id;
+  render();
+  // Scroll to new row
+  setTimeout(() => {
+    const el = document.getElementById(`er-${newRow.id}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const inp = document.getElementById(`e-survey-${newRow.id}`);
+    if (inp) inp.focus();
+  }, 50);
 }
 
-function deleteRow(i){
-    data.splice(i,1);
-    render();
+function editRow(id) {
+  editingId = id;
+  render();
+  setTimeout(() => {
+    const el = document.getElementById(`er-${id}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const inp = document.getElementById(`e-survey-${id}`);
+    if (inp) inp.focus();
+  }, 50);
 }
 
-function clearAll(){
-    data=[];
-    render();
+function cancelEdit(id) {
+  const r = rows.find(x => x.id === id);
+  // If unsaved (no area/value), remove it
+  if (r && !r.area && !r.guideValue) {
+    rows = rows.filter(x => x.id !== id);
+  }
+  editingId = null;
+  render();
 }
 
-const survey=document.getElementById("survey");
-const subdiv=document.getElementById("subdiv");
-const area=document.getElementById("area");
-const areaUnit=document.getElementById("areaUnit");
-const value=document.getElementById("value");
-const valueUnit=document.getElementById("valueUnit");
-const stamp=document.getElementById("stamp");
-const reg=document.getElementById("reg");
-const tbody=document.getElementById("tbody");
-const grandEl=document.getElementById("grand");
+function saveRow(id) {
+  const r = rows.find(x => x.id === id);
+  if (!r) return;
+
+  const survey = document.getElementById(`e-survey-${id}`).value.trim();
+  const subdiv = document.getElementById(`e-subdiv-${id}`).value.trim();
+  const area   = parseFloat(document.getElementById(`e-area-${id}`).value);
+  const aunit  = document.getElementById(`e-aunit-${id}`).value;
+  const gval   = parseFloat(document.getElementById(`e-gval-${id}`).value);
+  const vunit  = document.getElementById(`e-vunit-${id}`).value;
+  const stamp  = parseFloat(document.getElementById(`e-stamp-${id}`).value);
+  const reg    = parseFloat(document.getElementById(`e-reg-${id}`).value);
+
+  if (!area || !gval) {
+    const missing = !area ? `e-area-${id}` : `e-gval-${id}`;
+    document.getElementById(missing).focus();
+    document.getElementById(missing).style.borderColor = 'var(--accent)';
+    setTimeout(() => document.getElementById(missing).style.borderColor = '', 1200);
+    return;
+  }
+
+  r.survey = survey || (subdiv ? `—/${subdiv}` : 'Plot');
+  r.subdiv = subdiv;
+  r.area = area;
+  r.areaUnit = aunit;
+  r.guideValue = gval;
+  r.valueUnit = vunit;
+  r.stampPct = stamp || 7;
+  r.regPct = reg || 2;
+
+  calcRow(r);
+  editingId = null;
+  render();
+}
+
+function deleteRow(id) {
+  rows = rows.filter(x => x.id !== id);
+  if (editingId === id) editingId = null;
+  render();
+}
+
+// Initial render
+render();
 </script>
-
 </body>
 </html>
