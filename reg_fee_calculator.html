@@ -418,7 +418,7 @@
     <thead>
       <tr>
         <th style="width:24px">#</th>
-        <th>Survey / Subdiv</th>
+        <th>S.No</th>
         <th>Area</th>
         <th class="num">Guideline</th>
         <th class="num">Stamp</th>
@@ -546,7 +546,7 @@ function renderDataRow(r, i) {
   return `<tr class="data-row" id="dr-${r.id}">
     <td><div class="cell" style="color:var(--muted);font-size:10px">${i+1}</div></td>
     <td><div class="cell">
-      <span class="survey-text">${r.survey || '—'}</span>
+      <span class="survey-text">${r.survey && r.subdiv ? r.survey+' / '+r.subdiv : r.survey || r.subdiv || '—'}</span>
     </div></td>
     <td><div class="cell area-text">${r.area} ${r.areaUnit}</div></td>
     <td class="num"><div class="cell">
