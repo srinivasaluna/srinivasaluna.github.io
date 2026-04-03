@@ -35,7 +35,8 @@
     background: var(--blue);
     padding: 14px 16px 12px;
     position: relative;
-    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
   }
   .header::before {
     content: '';
@@ -143,6 +144,8 @@
   .table-wrap {
     padding: 0 12px;
     margin-top: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   table {
@@ -342,12 +345,13 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
     border: none;
+    vertical-align: middle;
   }
   tfoot td:first-child { border-radius: 0 0 0 6px; }
   tfoot td:last-child  { border-radius: 0 0 6px 0; }
-  tfoot .total-label { font-style: italic; font-size: 9px; font-family: 'Libre Baskerville', serif; color: rgba(255,255,255,0.5); }
-  tfoot .total-num { text-align: right; }
-  tfoot .grand-amt { color: var(--gold); font-weight: 600; font-size: 13px; }
+  tfoot .total-label { font-style: italic; font-size: 9px; font-family: 'Libre Baskerville', serif; color: rgba(255,255,255,0.5); vertical-align: middle; }
+  tfoot .total-num { text-align: right; vertical-align: middle; }
+  tfoot .grand-amt { color: var(--gold); font-weight: 600; font-size: 13px; text-align: right; }
 
   /* Stamp/Reg config footer */
   .config-bar {
@@ -359,6 +363,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    box-sizing: border-box;
   }
   .config-bar label {
     font-size: 10px;
@@ -432,7 +437,9 @@
     </tbody>
     <tfoot id="tfoot" style="display:none">
       <tr>
-        <td colspan="4" class="total-label">Grand Total</td>
+        <td colspan="2" class="total-label">Grand Total</td>
+        <td class="total-num"></td>
+        <td class="total-num"></td>
         <td class="total-num" id="footStamp">—</td>
         <td class="total-num" id="footReg">—</td>
         <td class="total-num grand-amt" id="footTotal">—</td>
