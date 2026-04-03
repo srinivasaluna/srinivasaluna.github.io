@@ -160,7 +160,6 @@
     border-spacing: 0;
     font-size: 11px;
     white-space: nowrap;
-    table-layout: fixed;
   }
 
   thead tr {
@@ -485,14 +484,14 @@
       <table id="mainTable">
     <thead>
       <tr>
-        <th style="width:24px">#</th>
-        <th>S.No</th>
-        <th>Area</th>
-        <th class="num">Guideline</th>
-        <th class="num">Stamp</th>
-        <th class="num">Reg</th>
-        <th class="num">Total</th>
-        <th style="width:52px; text-align:center">Act</th>
+        <th style="width:22px">#</th>
+        <th style="width:70px">S.No</th>
+        <th style="width:55px">Area</th>
+        <th class="num" style="width:70px">Guideline</th>
+        <th class="num" style="width:62px">Stamp</th>
+        <th class="num" style="width:58px">Reg</th>
+        <th class="num" style="width:62px">Total</th>
+        <th style="width:44px; text-align:center">Act</th>
       </tr>
     </thead>
     <tbody id="tbody">
@@ -627,7 +626,7 @@ function renderDataRow(r, i) {
     <td><div class="cell area-text">${r.area} ${r.areaUnit}</div></td>
     <td class="num"><div class="cell">
       <span style="font-family:'JetBrains Mono',monospace;font-size:10px">${fmtShort(r.propValue)}</span>
-      <span class="sub-text">@${r.guideValue.toLocaleString('en-IN')}/${r.valueUnit}</span>
+      <span class="sub-text">Per ${r.valueUnit}</span>
     </div></td>
     <td class="num"><div class="cell" style="color:var(--blue-lt)">${fmtShort(r.stampAmt)}<span class="sub-text">${r.stampPct}%</span></div></td>
     <td class="num"><div class="cell" style="color:var(--muted)">${fmtShort(r.regAmt)}<span class="sub-text">${r.regPct}%</span></div></td>
