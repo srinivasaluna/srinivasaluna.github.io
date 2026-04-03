@@ -30,83 +30,6 @@
     padding-bottom: 40px;
   }
 
-  /* ── Header ── */
-  .header {
-    background: var(--blue);
-    padding: 14px 16px 12px;
-    position: relative;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  .header::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(
-      90deg,
-      transparent 0, transparent 40px,
-      rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px
-    );
-  }
-  .header-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    position: relative;
-  }
-  .header h1 {
-    font-size: 15px;
-    color: #fff;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    line-height: 1.3;
-  }
-  .header h1 span {
-    display: block;
-    font-size: 10px;
-    font-style: italic;
-    color: rgba(255,255,255,0.55);
-    font-weight: 400;
-    letter-spacing: 0.08em;
-  }
-  .rates-pill {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
-  .rate-chip {
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 4px;
-    padding: 4px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1px;
-    cursor: pointer;
-  }
-  .rate-chip label {
-    font-size: 8px;
-    color: rgba(255,255,255,0.55);
-    font-style: italic;
-    pointer-events: none;
-  }
-  .rate-chip input {
-    background: transparent;
-    border: none;
-    color: var(--gold);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    font-weight: 600;
-    width: 36px;
-    text-align: center;
-    outline: none;
-  }
-  .rate-chip input:focus { color: #fff; }
-  .rate-chip span {
-    font-size: 8px;
-    color: rgba(255,255,255,0.4);
-  }
-
   /* ── Grand Total bar ── */
   .grand-bar {
     background: var(--blue);
@@ -147,7 +70,6 @@
   }
   .table-wrap {
     overflow: hidden;
-    touch-action: pan-y;
     border-radius: 6px;
   }
   .table-scaler {
@@ -198,7 +120,7 @@
   }
   tbody td.num .cell { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; }
   tbody td .survey-text { font-weight: 700; font-size: 11px; color: var(--blue); }
-  tbody td .area-text { color: var(--muted); font-size: 10px; }
+  tbody td .area-text { color: var(--ink); font-size: 10px; }
   tbody td .total-text { color: var(--accent); font-weight: 700; font-size: 11px; }
   tbody td .sub-text { font-size: 9px; color: var(--muted); display: block; }
 
@@ -302,17 +224,57 @@
   }
   .act-btn:hover { opacity: 1; transform: scale(1.15); }
 
-  /* Add row */
-  tr.add-row td {
-    background: var(--ledger);
-    border-bottom: none;
+  /* Inline delete confirm */
+  .confirm-row td {
+    background: #fff5f5;
+    border-bottom: 2px solid var(--accent);
+    padding: 6px 8px;
+  }
+  .confirm-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .confirm-msg {
+    font-size: 11px;
+    color: var(--accent);
+    font-style: italic;
+  }
+  .confirm-btns { display: flex; gap: 6px; }
+  .btn-confirm-yes {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-family: 'Libre Baskerville', serif;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-confirm-no {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-family: 'Libre Baskerville', serif;
+    cursor: pointer;
+  }
+
+  /* Add button */
+  .add-btn-outer {
+    padding: 10px 12px 4px;
+    display: flex;
+    justify-content: flex-end;
   }
   .btn-add {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 10px 10px 4px;
-    padding: 10px 14px;
+    padding: 9px 16px;
     background: var(--blue);
     color: #fff;
     border: none;
@@ -321,8 +283,7 @@
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    width: calc(100% - 20px);
-    justify-content: center;
+    width: auto;
     letter-spacing: 0.05em;
     transition: background 0.15s, transform 0.1s;
   }
@@ -362,7 +323,7 @@
 
   /* Stamp/Reg config footer */
   .config-bar {
-    margin: 12px 12px 0;
+    margin: 16px 12px 0;
     background: var(--paper);
     border: 1px solid var(--rule);
     border-radius: 8px;
@@ -431,15 +392,6 @@
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
-    <h1>
-      Land Registration
-      <span>Stamp Duty &amp; Registration Fee Calculator</span>
-    </h1>
-  </div>
-</div>
-
 <!-- Global rates config -->
 <div class="config-bar">
   <span class="config-title">Default Values</span>
@@ -459,6 +411,7 @@
     Area Unit
     <select id="globalAreaUnit">
       <option>Acre</option>
+      <option>Are</option>
       <option>Cent</option>
       <option>Hectare</option>
       <option>Sq.Ft</option>
@@ -469,6 +422,7 @@
     Guideline Value Unit
     <select id="globalValueUnit">
       <option>Acre</option>
+      <option>Are</option>
       <option>Cent</option>
       <option>Hectare</option>
       <option>Sq.Ft</option>
@@ -488,8 +442,9 @@
         <th style="width:70px">S.No</th>
         <th style="width:55px">Area</th>
         <th class="num" style="width:70px">Guideline</th>
-        <th class="num" style="width:62px">Stamp</th>
-        <th class="num" style="width:58px">Reg</th>
+        <th class="num" style="width:68px">Land Value</th>
+        <th class="num" style="width:62px">Stamp Duty</th>
+        <th class="num" style="width:58px">Reg Fee</th>
         <th class="num" style="width:62px">Total</th>
         <th style="width:44px; text-align:center">Act</th>
       </tr>
@@ -502,6 +457,7 @@
         <td colspan="2" class="total-label">Grand Total</td>
         <td class="total-num"></td>
         <td class="total-num"></td>
+        <td class="total-num" id="footLand">—</td>
         <td class="total-num" id="footStamp">—</td>
         <td class="total-num" id="footReg">—</td>
         <td class="total-num grand-amt" id="footTotal">—</td>
@@ -513,16 +469,26 @@
   </div><!-- /table-wrap -->
 </div><!-- /table-outer -->
 
+<div class="add-btn-outer">
+  <button class="btn-add" onclick="addNewRow()">
+    <span class="plus">＋</span> Add New Entry
+  </button>
+</div>
+
 <script>
 let rows = [];
 let editingId = null;
+let confirmDeleteId = null;
 let nextId = 1;
 
-const UNITS = ['Acre','Cent','Hectare','Sq.Ft','Sq.m'];
+const UNITS = ['Acre','Are','Cent','Hectare','Sq.Ft','Sq.m'];
 
 // Conversion: all to Acre base
+// Rates from area_conversion.html (base: Are)
+// 1 Are = 0.0247105 Acre  →  1 Acre = 40.4686 Are
 function toAcre(v, u) {
   switch(u) {
+    case 'Are':     return v * 0.0247105;
     case 'Cent':    return v / 100;
     case 'Hectare': return v * 2.47105;
     case 'Sq.Ft':   return v / 43560;
@@ -532,6 +498,7 @@ function toAcre(v, u) {
 }
 function fromAcre(a, u) {
   switch(u) {
+    case 'Are':     return a / 0.0247105;
     case 'Cent':    return a * 100;
     case 'Hectare': return a / 2.47105;
     case 'Sq.Ft':   return a * 43560;
@@ -543,9 +510,10 @@ function fromAcre(a, u) {
 function calcRow(r) {
   const acre = toAcre(r.area, r.areaUnit);
   const converted = fromAcre(acre, r.valueUnit);
-  r.propValue = converted * r.guideValue;
-  r.stampAmt  = r.propValue * r.stampPct / 100;
-  r.regAmt    = r.propValue * r.regPct / 100;
+  r.propValue = converted * r.guideValue;  // Guideline value display
+  r.landValue = r.propValue;               // Land Value = Area * Guideline/Unit
+  r.stampAmt  = r.landValue * r.stampPct / 100;
+  r.regAmt    = r.landValue * r.regPct / 100;
   r.total     = r.stampAmt + r.regAmt;
 }
 
@@ -553,11 +521,17 @@ function fmt(n) {
   if (!n && n !== 0) return '—';
   return '₹' + Number(n.toFixed(0)).toLocaleString('en-IN');
 }
-function fmtShort(n) {
+function fmtAbbr(n) {
   if (!n && n !== 0) return '—';
   if (n >= 1e7) return '₹' + (n/1e7).toFixed(2) + 'Cr';
   if (n >= 1e5) return '₹' + (n/1e5).toFixed(2) + 'L';
+  if (n >= 1e3) return '₹' + (n/1e3).toFixed(2) + 'K';
   return '₹' + Number(n.toFixed(0)).toLocaleString('en-IN');
+}
+
+function shortUnit(u) {
+  const map = { 'Hectare': 'Hect', 'Sq.Ft': 'SqFt', 'Sq.m': 'Sq.m' };
+  return map[u] || u;
 }
 
 function unitOpts(selected) {
@@ -579,7 +553,7 @@ function render() {
   let html = '';
 
   if (rows.length === 0) {
-    html += `<tr><td colspan="8"><div class="empty-state">
+    html += `<tr><td colspan="9"><div class="empty-state">
       <div class="icon">📋</div>
       <p>No entries yet.<br>Tap <strong>Add New Entry</strong> below to start.</p>
     </div></td></tr>`;
@@ -588,17 +562,13 @@ function render() {
   rows.forEach((r, i) => {
     if (editingId === r.id) {
       html += renderEditRow(r, i);
+    } else if (confirmDeleteId === r.id) {
+      html += renderDataRow(r, i);
+      html += renderConfirmRow(r);
     } else {
       html += renderDataRow(r, i);
     }
   });
-
-  // Add button row
-  html += `<tr class="add-row"><td colspan="8">
-    <button class="btn-add" onclick="addNewRow()">
-      <span class="plus">＋</span> Add New Entry
-    </button>
-  </td></tr>`;
 
   tbody.innerHTML = html;
   // Re-fit table after DOM update
@@ -606,11 +576,12 @@ function render() {
 
   // Footer totals
   if (rows.length > 0) {
-    let totStamp = 0, totReg = 0, totAll = 0;
-    rows.forEach(r => { totStamp += r.stampAmt||0; totReg += r.regAmt||0; totAll += r.total||0; });
-    document.getElementById('footStamp').textContent = fmtShort(totStamp);
-    document.getElementById('footReg').textContent   = fmtShort(totReg);
-    document.getElementById('footTotal').textContent = fmtShort(totAll);
+    let totLand = 0, totStamp = 0, totReg = 0, totAll = 0;
+    rows.forEach(r => { totLand += r.landValue||0; totStamp += r.stampAmt||0; totReg += r.regAmt||0; totAll += r.total||0; });
+    document.getElementById('footLand').textContent  = fmt(totLand);
+    document.getElementById('footStamp').textContent = fmt(totStamp);
+    document.getElementById('footReg').textContent   = fmt(totReg);
+    document.getElementById('footTotal').textContent = fmt(totAll);
     tfoot.style.display = '';
   } else {
     tfoot.style.display = 'none';
@@ -623,17 +594,21 @@ function renderDataRow(r, i) {
     <td><div class="cell">
       <span class="survey-text">${r.survey && r.subdiv ? r.survey+' / '+r.subdiv : r.survey || r.subdiv || '—'}</span>
     </div></td>
-    <td><div class="cell area-text">${r.area} ${r.areaUnit}</div></td>
+    <td><div class="cell area-text">${r.area} ${shortUnit(r.areaUnit)}</div></td>
     <td class="num"><div class="cell">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:10px">${fmtShort(r.propValue)}</span>
-      <span class="sub-text">Per ${r.valueUnit}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink)">${fmtAbbr(r.propValue)}</span>
+      <span class="sub-text">Per ${shortUnit(r.valueUnit)}</span>
     </div></td>
-    <td class="num"><div class="cell" style="color:var(--blue-lt)">${fmtShort(r.stampAmt)}<span class="sub-text">${r.stampPct}%</span></div></td>
-    <td class="num"><div class="cell" style="color:var(--muted)">${fmtShort(r.regAmt)}<span class="sub-text">${r.regPct}%</span></div></td>
-    <td class="num"><div class="cell total-text">${fmtShort(r.total)}</div></td>
+    <td class="num"><div class="cell">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink)">${fmt(r.landValue)}</span>
+    </div></td>
+    <td class="num"><div class="cell" style="color:var(--ink)">${fmt(r.stampAmt)}<span class="sub-text">${r.stampPct}%</span></div></td>
+    <td class="num"><div class="cell" style="color:var(--ink)">${fmt(r.regAmt)}<span class="sub-text">${r.regPct}%</span></div></td>
+    <td class="num"><div class="cell total-text">${fmt(r.total)}</div></td>
     <td><div class="cell">
       <div class="row-actions">
         <button class="act-btn" title="Edit" onclick="editRow(${r.id})">✏️</button>
+        <button class="act-btn" title="Duplicate" onclick="duplicateRow(${r.id})">📋</button>
         <button class="act-btn" title="Delete" onclick="deleteRow(${r.id})">🗑️</button>
       </div>
     </div></td>
@@ -642,7 +617,7 @@ function renderDataRow(r, i) {
 
 function renderEditRow(r, i) {
   return `<tr class="edit-row" id="er-${r.id}">
-    <td colspan="8">
+    <td colspan="9">
       <div class="edit-section" style="grid-template-columns:1fr 1fr;">
         <div class="edit-row-full">
           <span class="field-label">Survey Number / Subdivision</span>
@@ -714,6 +689,7 @@ function addNewRow() {
 
 function editRow(id) {
   editingId = id;
+  confirmDeleteId = null;
   render();
   setTimeout(() => {
     const el = document.getElementById(`er-${id}`);
@@ -768,16 +744,51 @@ function saveRow(id) {
   render();
 }
 
+function renderConfirmRow(r) {
+  return `<tr class="confirm-row">
+    <td colspan="9">
+      <div class="confirm-inner">
+        <span class="confirm-msg">Delete "${r.survey || 'this entry'}"?</span>
+        <div class="confirm-btns">
+          <button class="btn-confirm-yes" onclick="confirmDelete(${r.id})">Delete</button>
+          <button class="btn-confirm-no"  onclick="cancelDelete()">Cancel</button>
+        </div>
+      </div>
+    </td>
+  </tr>`;
+}
+
 function deleteRow(id) {
-  rows = rows.filter(x => x.id !== id);
-  if (editingId === id) editingId = null;
+  confirmDeleteId = id;
   render();
 }
 
-// ── Auto-fit table to container width, then allow pinch zoom ──
+function confirmDelete(id) {
+  rows = rows.filter(x => x.id !== id);
+  if (editingId === id) editingId = null;
+  confirmDeleteId = null;
+  render();
+}
+
+function cancelDelete() {
+  confirmDeleteId = null;
+  render();
+}
+
+function duplicateRow(id) {
+  const r = rows.find(x => x.id === id);
+  if (!r) return;
+  const newRow = { ...r, id: nextId++ };
+  // Insert immediately after the source row
+  const idx = rows.findIndex(x => x.id === id);
+  rows.splice(idx + 1, 0, newRow);
+  confirmDeleteId = null;
+  editingId = null;
+  render();
+}
+
+// ── Auto-fit table to container width ──
 let currentScale = 1;
-let pinchStartDist = 0;
-let pinchStartScale = 1;
 
 function autoFitTable() {
   const wrap = document.getElementById('tableWrap');
@@ -801,18 +812,35 @@ function autoFitTable() {
   }
 }
 
-function applyScale(scale) {
-  const wrap   = document.getElementById('tableWrap');
-  const scaler = document.getElementById('tableScaler');
-  const naturalW = scaler.scrollWidth;
-  currentScale = Math.min(Math.max(scale, 0.4), 3.0);
-  scaler.style.transform = `scale(${currentScale})`;
-  scaler.style.transformOrigin = 'top left';
-  scaler.style.width = naturalW + 'px';
-  wrap.style.height  = (scaler.scrollHeight * currentScale) + 'px';
-  // Allow horizontal scroll if zoomed in beyond fit
-  wrap.style.overflowX = currentScale > (wrap.clientWidth / naturalW) ? 'auto' : 'hidden';
+// ── Persist default values across sessions ──
+const STORAGE_KEY = 'regCalcDefaults';
+
+function saveDefaults() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      stamp:     document.getElementById('globalStamp').value,
+      reg:       document.getElementById('globalReg').value,
+      areaUnit:  document.getElementById('globalAreaUnit').value,
+      valueUnit: document.getElementById('globalValueUnit').value,
+    }));
+  } catch(e) {}
 }
+
+function restoreDefaults() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!saved) return;
+    if (saved.stamp)     document.getElementById('globalStamp').value = saved.stamp;
+    if (saved.reg)       document.getElementById('globalReg').value = saved.reg;
+    if (saved.areaUnit)  document.getElementById('globalAreaUnit').value = saved.areaUnit;
+    if (saved.valueUnit) document.getElementById('globalValueUnit').value = saved.valueUnit;
+  } catch(e) {}
+}
+
+// Attach change listeners to all 4 fields
+['globalStamp','globalReg','globalAreaUnit','globalValueUnit'].forEach(id => {
+  document.getElementById(id).addEventListener('change', saveDefaults);
+});
 
 // Pinch zoom via touch events on the table wrapper
 document.addEventListener('DOMContentLoaded', () => {
@@ -822,7 +850,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // Re-fit on orientation change
 window.addEventListener('resize', autoFitTable);
 
-// Initial render
+// Restore saved defaults then render
+restoreDefaults();
 render();
 </script>
 </body>

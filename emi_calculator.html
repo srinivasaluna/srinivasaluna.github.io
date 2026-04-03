@@ -4,140 +4,294 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --ink:     #1a1f2e;
+            --paper:   #faf8f3;
+            --ledger:  #f0ece0;
+            --rule:    #d4c9a8;
+            --gold:    #c8922a;
+            --blue:    #1e3a5f;
+            --blue-lt: #2a5298;
+            --green:   #1e5c2f;
+            --accent:  #b5451b;
+            --muted:   #7a7060;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
+            font-family: 'Libre Baskerville', Georgia, serif;
+            background: var(--ledger);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 16px;
+            padding-bottom: 40px;
         }
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 10px;
-        }
+
+        /* ── Inputs ── */
         .input-container {
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
         .input-container label {
-            display: block;
-            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 11px;
+            font-style: italic;
+            color: var(--muted);
+        }
+        .input-container label .label-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-style: normal;
+            font-size: 12px;
+            color: var(--blue);
         }
         .input-container input[type="number"] {
             width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
+            padding: 8px 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--ink);
+            background: var(--paper);
+            border: 1px solid var(--rule);
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
-        .result {
-            text-align: left;
-            margin-top: 20px;
+        .input-container input[type="number"]:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(200,146,42,0.15);
         }
-        .result .emi {
-            font-size: 15px;
-            font-weight: bold;
+        /* Hide spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* ── Error ── */
+        .error-msg {
+            font-size: 10px;
+            font-style: italic;
+            color: var(--accent);
+            margin-top: 3px;
+            display: none;
         }
-        .chart-container {
-            margin-top: 20px;
+
+        /* ── Results card ── */
+        .result-card {
+            background: var(--blue);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-top: 18px;
         }
-        .breakdown {
+        .result-card .emi-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .result-card .emi-label {
+            font-size: 10px;
+            font-style: italic;
+            letter-spacing: 0.06em;
+            color: rgba(255,255,255,0.55);
+        }
+        .result-card .emi-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--gold);
+        }
+        .result-card .detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 6px;
+            color: rgba(255,255,255,0.75);
+        }
+        .result-card .detail-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* ── Chart ── */
+        .chart-wrapper {
+            margin-top: 16px;
+            background: var(--paper);
+            border: 1px solid var(--rule);
+            border-radius: 8px;
+            padding: 16px;
             display: flex;
             justify-content: center;
-            margin-top: 20px;
-        }
-        .breakdown div {
-            text-align: center;
+            align-items: center;
         }
         canvas {
-            max-width: 100%;
-            height: auto;
+            max-width: 200px;
+            max-height: 200px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="input-container">
-            <label for="loanAmount">Loan Amount: <span id="loanAmountValue">7,50,000</span> ₹</label>
-            <input type="number" id="loanAmount" min="0" max="20000000" value="750000">
+
+    <div class="input-container">
+        <label for="loanAmount">
+            <span>Loan Amount</span>
+            <span class="label-value">₹<span id="loanAmountValue">7,50,000</span></span>
+        </label>
+        <input type="number" id="loanAmount" min="1" max="200000000" value="750000">
+        <div class="error-msg" id="errLoan">Please enter a valid loan amount (> 0).</div>
+    </div>
+
+    <div class="input-container">
+        <label for="interestRate">
+            <span>Interest Rate</span>
+            <span class="label-value"><span id="interestRateValue">11</span> %</span>
+        </label>
+        <input type="number" id="interestRate" step="0.1" min="0.1" max="100" value="11">
+        <div class="error-msg" id="errRate">Please enter a valid interest rate (0.1 – 100).</div>
+    </div>
+
+    <div class="input-container">
+        <label for="loanTenure">
+            <span>Loan Tenure</span>
+            <span class="label-value"><span id="loanTenureValue">3</span> Yr</span>
+        </label>
+        <input type="number" id="loanTenure" min="1" max="30" value="3">
+        <div class="error-msg" id="errTenure">Please enter a valid tenure (1 – 30 years).</div>
+    </div>
+
+    <div class="result-card">
+        <div class="emi-row">
+            <span class="emi-label">Monthly EMI</span>
+            <span class="emi-amount">₹<span id="emiValue">24,554</span></span>
         </div>
-        <div class="input-container">
-            <label for="interestRate">Interest Rate: <span id="interestRateValue">11</span> %</label>
-            <input type="number" id="interestRate" step="0.1" min="5" max="25" value="11">
+        <div class="detail-row">
+            <span>Principal Amount</span>
+            <span class="detail-val">₹<span id="principalValue">7,50,000</span></span>
         </div>
-        <div class="input-container">
-            <label for="loanTenure">Loan Tenure: <span id="loanTenureValue">3</span> Yr</label>
-            <input type="number" id="loanTenure" min="1" max="30" value="3">
+        <div class="detail-row">
+            <span>Total Interest</span>
+            <span class="detail-val">₹<span id="totalInterestValue">1,33,945</span></span>
         </div>
-        <div class="result">
-            <div class="emi">Loan EMI: <span id="emiValue">24,554</span> ₹</div>
-            <div>Total Interest Payable: <span id="totalInterestValue">1,33,945</span> ₹</div>
-            <div>Total Payment (Principal + Interest): <span id="totalPaymentValue">8,83,945</span> ₹</div>
-        </div>
-        <div class="breakdown">
-            <div>
-                <canvas id="paymentChart" width="150" height="150"></canvas>
-            </div>
+        <div class="detail-row">
+            <span>Total Payment</span>
+            <span class="detail-val">₹<span id="totalPaymentValue">8,83,945</span></span>
         </div>
     </div>
+
+    <div class="chart-wrapper">
+        <canvas id="paymentChart"></canvas>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const loanAmount = document.getElementById('loanAmount');
-        const interestRate = document.getElementById('interestRate');
-        const loanTenure = document.getElementById('loanTenure');
-        const loanAmountValue = document.getElementById('loanAmountValue');
-        const interestRateValue = document.getElementById('interestRateValue');
-        const loanTenureValue = document.getElementById('loanTenureValue');
-        const emiValue = document.getElementById('emiValue');
-        const totalInterestValue = document.getElementById('totalInterestValue');
-        const totalPaymentValue = document.getElementById('totalPaymentValue');
-        const paymentChart = document.getElementById('paymentChart');
+        const elLoanAmount   = document.getElementById('loanAmount');
+        const elInterestRate = document.getElementById('interestRate');
+        const elLoanTenure   = document.getElementById('loanTenure');
+        const elLoanAmtVal   = document.getElementById('loanAmountValue');
+        const elRateVal      = document.getElementById('interestRateValue');
+        const elTenureVal    = document.getElementById('loanTenureValue');
+        const elEmi          = document.getElementById('emiValue');
+        const elPrincipal    = document.getElementById('principalValue');
+        const elInterest     = document.getElementById('totalInterestValue');
+        const elTotal        = document.getElementById('totalPaymentValue');
 
-        function formatNumber(num) {
-            return num.toLocaleString('en-IN');
+        let chartInstance = null;
+
+        function fmt(num) {
+            return Math.round(num).toLocaleString('en-IN');
+        }
+
+        function validate() {
+            const P = parseFloat(elLoanAmount.value);
+            const r = parseFloat(elInterestRate.value);
+            const n = parseFloat(elLoanTenure.value);
+            let valid = true;
+
+            if (!P || P <= 0 || isNaN(P)) {
+                document.getElementById('errLoan').style.display = 'block'; valid = false;
+            } else { document.getElementById('errLoan').style.display = 'none'; }
+
+            if (!r || r < 0.1 || r > 100 || isNaN(r)) {
+                document.getElementById('errRate').style.display = 'block'; valid = false;
+            } else { document.getElementById('errRate').style.display = 'none'; }
+
+            if (!n || n < 1 || n > 30 || isNaN(n)) {
+                document.getElementById('errTenure').style.display = 'block'; valid = false;
+            } else { document.getElementById('errTenure').style.display = 'none'; }
+
+            return valid ? { P, r, n } : null;
         }
 
         function calculateEMI() {
-            const P = parseFloat(loanAmount.value);
-            const r = parseFloat(interestRate.value) / 12 / 100;
-            const n = parseFloat(loanTenure.value) * 12;
+            const inputs = validate();
+            if (!inputs) return;
 
-            const emi = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-            const totalPayment = emi * n;
+            const { P, r, n } = inputs;
+            const monthlyRate   = r / 12 / 100;
+            const months        = n * 12;
+            const emi           = (P * monthlyRate * Math.pow(1 + monthlyRate, months)) /
+                                  (Math.pow(1 + monthlyRate, months) - 1);
+            const totalPayment  = emi * months;
             const totalInterest = totalPayment - P;
 
-            emiValue.textContent = formatNumber(emi.toFixed(0));
-            totalInterestValue.textContent = formatNumber(totalInterest.toFixed(0));
-            totalPaymentValue.textContent = formatNumber(totalPayment.toFixed(0));
+            elEmi.textContent       = fmt(emi);
+            elPrincipal.textContent = fmt(P);
+            elInterest.textContent  = fmt(totalInterest);
+            elTotal.textContent     = fmt(totalPayment);
 
             updateChart(P, totalInterest);
         }
 
         function updateChart(principal, interest) {
-            const data = {
-                labels: ['Principal', 'Interest'],
-                datasets: [{
-                    data: [principal, interest],
-                    backgroundColor: ['#4CAF50', '#FF9800']
-                }]
-            };
-
-            new Chart(paymentChart, {
+            if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+            const pct = p => ((p / (principal + interest)) * 100).toFixed(1) + '%';
+            chartInstance = new Chart(document.getElementById('paymentChart'), {
                 type: 'pie',
-                data: data
+                data: {
+                    labels: [`Principal (${pct(principal)})`, `Interest (${pct(interest)})`],
+                    datasets: [{
+                        data: [principal, interest],
+                        backgroundColor: ['#1e5c2f', '#c8922a'],
+                        borderWidth: 1,
+                        borderColor: '#faf8f3'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { family: "'Libre Baskerville', serif", size: 11 },
+                                padding: 14,
+                                color: '#1a1f2e'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: { label: ctx => ' ₹' + fmt(ctx.parsed) }
+                        }
+                    }
+                }
             });
         }
 
-        loanAmount.addEventListener('input', () => {
-            loanAmountValue.textContent = formatNumber(loanAmount.value);
+        elLoanAmount.addEventListener('input', () => {
+            elLoanAmtVal.textContent = fmt(parseFloat(elLoanAmount.value) || 0);
             calculateEMI();
         });
-
-        interestRate.addEventListener('input', () => {
-            interestRateValue.textContent = interestRate.value;
+        elInterestRate.addEventListener('input', () => {
+            elRateVal.textContent = elInterestRate.value;
             calculateEMI();
         });
-
-        loanTenure.addEventListener('input', () => {
-            loanTenureValue.textContent = loanTenure.value;
+        elLoanTenure.addEventListener('input', () => {
+            elTenureVal.textContent = elLoanTenure.value;
             calculateEMI();
         });
 

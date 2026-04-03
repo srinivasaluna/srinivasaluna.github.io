@@ -3,113 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vertical Area Converter</title>
+    <title>Area Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --ink:    #1a1f2e;
+            --paper:  #faf8f3;
+            --ledger: #f0ece0;
+            --rule:   #d4c9a8;
+            --gold:   #c8922a;
+            --blue:   #1e3a5f;
+            --muted:  #7a7060;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f9f9f9;
-            margin: 0;
+            font-family: 'Libre Baskerville', Georgia, serif;
+            background: var(--ledger);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 16px;
+            padding-bottom: 40px;
         }
-        .converter-container {
+
+        /* ── Clear button row ── */
+        .toolbar {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-            width: 100%;
-            box-sizing: border-box;
+            justify-content: flex-end;
+            margin-bottom: 12px;
         }
-        .converter {
-            background-color: #ffffff;
-            border: 1px solid #dddddd;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            overflow: hidden;
-            width: 100%;
-            max-width: 300px;
-            box-sizing: border-box;
+        .btn-clear {
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 14px;
+            font-family: 'Libre Baskerville', serif;
+            font-size: 11px;
+            font-style: italic;
+            cursor: pointer;
+            transition: background 0.15s;
         }
-        .converter-header {
-            background-color: #1A3A6E;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
+        .btn-clear:active { background: #2a5298; }
+
+        /* ── Fields ── */
+        .field {
+            margin-bottom: 12px;
         }
-        .converter-body {
-            padding: 10px;
-        }
-        .converter-body div {
-            margin-bottom: 10px;
-        }
-        .converter-body label {
+        .field label {
             display: block;
-            margin-bottom: 5px;
+            font-size: 11px;
+            font-style: italic;
+            color: var(--muted);
+            margin-bottom: 4px;
         }
-        .converter-body input {
+        .field input {
             width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
+            padding: 8px 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--ink);
+            background: var(--paper);
+            border: 1px solid var(--rule);
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
+        .field input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(200,146,42,0.15);
+        }
+        /* Hide spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+        input[type=number] { -moz-appearance: textfield; }
     </style>
 </head>
 <body>
-    <div class="converter-container">
-        <div class="converter">
-            <div class="converter-header">
-                Area Converter
-            </div>
-            <div class="converter-body">
-                <div>
-                    <label for="are">Are</label>
-                    <input type="number" id="are" placeholder="Are" oninput="convertArea('are')">
-                </div>
-                <div>
-                    <label for="sqm">Sq. Mtrs</label>
-                    <input type="number" id="sqm" placeholder="Sq. Mtrs" oninput="convertArea('sqm')">
-                </div>
-                <div>
-                    <label for="acre">Acre</label>
-                    <input type="number" id="acre" placeholder="Acre" oninput="convertArea('acre')">
-                </div>
-                <div>
-                    <label for="sqft">Sq. Feet</label>
-                    <input type="number" id="sqft" placeholder="Sq. Feet" oninput="convertArea('sqft')">
-                </div>
-                <div>
-                    <label for="cent">Cents</label>
-                    <input type="number" id="cent" placeholder="Cents" oninput="convertArea('cent')">
-                </div>
-                <div>
-                    <label for="hectare">Hectare</label>
-                    <input type="number" id="hectare" placeholder="Hectare" oninput="convertArea('hectare')">
-                </div>
-            </div>
-        </div>
+
+    <div class="toolbar">
+        <button class="btn-clear" onclick="clearAll()">Clear All</button>
+    </div>
+
+    <div class="field">
+        <label for="are">Are</label>
+        <input type="number" id="are" placeholder="0" min="0" oninput="convertArea('are')">
+    </div>
+    <div class="field">
+        <label for="sqm">Sq. Metres</label>
+        <input type="number" id="sqm" placeholder="0" min="0" oninput="convertArea('sqm')">
+    </div>
+    <div class="field">
+        <label for="acre">Acre</label>
+        <input type="number" id="acre" placeholder="0" min="0" oninput="convertArea('acre')">
+    </div>
+    <div class="field">
+        <label for="sqft">Sq. Feet</label>
+        <input type="number" id="sqft" placeholder="0" min="0" oninput="convertArea('sqft')">
+    </div>
+    <div class="field">
+        <label for="cent">Cent</label>
+        <input type="number" id="cent" placeholder="0" min="0" oninput="convertArea('cent')">
+    </div>
+    <div class="field">
+        <label for="hectare">Hectare</label>
+        <input type="number" id="hectare" placeholder="0" min="0" oninput="convertArea('hectare')">
     </div>
 
     <script>
         const conversionRates = {
-            are: 1,
-            sqm: 100,
-            acre: 0.0247105,
-            sqft: 1076.39,
-            cent: 2.47105,
+            are:     1,
+            sqm:     100,
+            acre:    0.0247105,
+            sqft:    1076.39,
+            cent:    2.47105,
             hectare: 0.01
         };
 
+        const ALL_UNITS = ['are', 'sqm', 'acre', 'sqft', 'cent', 'hectare'];
+
+        function smartFormat(value) {
+            if (value === 0) return '0';
+            return parseFloat(value.toFixed(6)).toString();
+        }
+
         function convertArea(fromUnit) {
             const value = parseFloat(document.getElementById(fromUnit).value);
-            if (isNaN(value)) return;
-
+            if (isNaN(value) || value < 0) {
+                ALL_UNITS.forEach(u => { if (u !== fromUnit) document.getElementById(u).value = ''; });
+                return;
+            }
             const areValue = value / conversionRates[fromUnit];
-
-            const units = ['are', 'sqm', 'acre', 'sqft', 'cent', 'hectare'];
-            units.forEach(unit => {
+            ALL_UNITS.forEach(unit => {
                 if (unit !== fromUnit) {
-                    document.getElementById(unit).value = (areValue * conversionRates[unit]).toFixed(4);
+                    document.getElementById(unit).value = smartFormat(areValue * conversionRates[unit]);
                 }
             });
+        }
+
+        function clearAll() {
+            ALL_UNITS.forEach(u => { document.getElementById(u).value = ''; });
+            document.getElementById('are').focus();
         }
     </script>
 </body>
