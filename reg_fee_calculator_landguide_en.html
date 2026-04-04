@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Land Registration Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:       #1a1f2e;
+    --paper:     #faf8f3;
+    --ledger:    #f0ece0;
+    --rule:      #d4c9a8;
+    --accent:    #b5451b;
+    --gold:      #c8922a;
+    --blue:      #1e3a5f;
+    --blue-lt:   #2a5298;
+    --green:     #1e5c2f;
+    --muted:     #7a7060;
+    --shadow:    0 2px 12px rgba(26,31,46,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    background: var(--ledger);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* ── Grand Total bar ── */
+  .grand-bar {
+    background: var(--blue);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+  .grand-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.5);
+    font-style: italic;
+  }
+  .grand-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gold);
+  }
+  .grand-breakdown {
+    display: flex;
+    gap: 12px;
+  }
+  .grand-mini {
+    text-align: right;
+  }
+  .grand-mini .lbl { font-size: 8px; color: rgba(255,255,255,0.4); }
+  .grand-mini .val { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.65); }
+
+  /* ── Table ── */
+  .table-outer {
+    padding: 0 12px;
+    margin-top: 12px;
+  }
+  .table-wrap {
+    overflow: hidden;
+    border-radius: 6px;
+  }
+  .table-scaler {
+    transform-origin: top left;
+    width: 100%;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  thead tr {
+    background: var(--blue);
+    color: rgba(255,255,255,0.75);
+  }
+  thead th {
+    padding: 7px 6px;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    text-align: left;
+    white-space: nowrap;
+  }
+  thead th:first-child { border-radius: 6px 0 0 0; }
+  thead th:last-child  { border-radius: 0 6px 0 0; text-align: center; }
+  thead th.num { text-align: right; }
+
+  /* Body rows */
+  tbody tr.data-row {
+    background: var(--paper);
+    transition: background 0.15s;
+  }
+  tbody tr.data-row:nth-child(even) { background: #f5f1e6; }
+  tbody tr.data-row:hover { background: #ede8d6; }
+
+  tbody td {
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: middle;
+  }
+  tbody td .cell {
+    padding: 8px 6px;
+    display: block;
+  }
+  tbody td.num .cell { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; }
+  tbody td .survey-text { font-weight: 700; font-size: 11px; color: var(--blue); }
+  tbody td .area-text { color: var(--ink); font-size: 10px; }
+  tbody td .total-text { color: var(--accent); font-weight: 700; font-size: 11px; }
+  tbody td .sub-text { font-size: 9px; color: var(--muted); display: block; }
+
+  /* Edit row */
+  tbody tr.edit-row td {
+    background: #fffdf5;
+    border-bottom: 2px solid var(--gold);
+    padding: 0;
+  }
+  .edit-cell {
+    padding: 6px 4px;
+  }
+
+  .row-input {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 12px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 5px 6px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .row-input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(200,146,42,0.15); }
+  .row-select {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 11px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 5px 4px;
+    width: 100%;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7060'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+  }
+  .row-select:focus { border-color: var(--gold); }
+
+  .field-label {
+    font-size: 8.5px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 2px;
+    display: block;
+  }
+
+  /* Edit row layout */
+  .edit-section {
+    display: grid;
+    gap: 6px;
+    padding: 8px 10px;
+  }
+  .edit-row-full { grid-column: 1 / -1; }
+  .edit-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .edit-inline { display: flex; gap: 4px; }
+  .edit-inline .row-input { flex: 1.8; }
+  .edit-inline .row-select { flex: 1; }
+
+  .edit-actions {
+    display: flex;
+    gap: 6px;
+    padding: 0 10px 10px;
+  }
+  .btn-save, .btn-cancel {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-save { background: var(--green); color: #fff; }
+  .btn-cancel { background: transparent; color: var(--muted); border: 1px solid var(--rule); }
+  .btn-save:active, .btn-cancel:active { transform: scale(0.97); }
+
+  /* Row actions */
+  .row-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  .act-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px;
+    opacity: 0.65;
+    transition: opacity 0.15s, transform 0.1s;
+    line-height: 1;
+  }
+  .act-btn:hover { opacity: 1; transform: scale(1.15); }
+
+  /* Inline delete confirm */
+  .confirm-row td {
+    background: #fff5f5;
+    border-bottom: 2px solid var(--accent);
+    padding: 6px 8px;
+  }
+  .confirm-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .confirm-msg {
+    font-size: 11px;
+    color: var(--accent);
+    font-style: italic;
+  }
+  .confirm-btns { display: flex; gap: 6px; }
+  .btn-confirm-yes {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-family: 'Libre Baskerville', serif;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-confirm-no {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-family: 'Libre Baskerville', serif;
+    cursor: pointer;
+  }
+
+  /* Add button */
+  .add-btn-outer {
+    padding: 10px 12px 4px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .btn-add {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    width: auto;
+    letter-spacing: 0.05em;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-add:hover { background: var(--blue-lt); }
+  .btn-add:active { transform: scale(0.98); }
+  .btn-add .plus {
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 300;
+    color: var(--gold);
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 32px; margin-bottom: 8px; }
+  .empty-state p { font-size: 12px; font-style: italic; }
+
+  /* Totals footer */
+  tfoot td {
+    background: var(--ink);
+    border: none;
+    vertical-align: middle;
+    padding: 9px 14px;
+  }
+  tfoot td:first-child { border-radius: 0 0 0 6px; }
+  tfoot td:last-child  { border-radius: 0 0 6px 0; }
+  tfoot .tfoot-lbl {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 10px;
+    font-style: italic;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.06em;
+  }
+  tfoot .tfoot-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gold);
+    text-align: right;
+  }
+
+  /* Stamp/Reg config footer */
+  .config-bar {
+    margin: 16px 12px 0;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    box-sizing: border-box;
+  }
+  .config-bar .config-title {
+    grid-column: 1 / -1;
+    font-size: 9px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 6px;
+  }
+  .config-bar label {
+    font-size: 10px;
+    font-style: italic;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: space-between;
+  }
+  .config-bar input {
+    background: var(--ledger);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 4px 6px;
+    width: 50px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    outline: none;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .config-bar input:focus { border-color: var(--gold); }
+  .config-bar select {
+    background: var(--ledger);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    outline: none;
+    flex-shrink: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%237a7060'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    background-color: var(--ledger);
+    padding-right: 18px;
+    cursor: pointer;
+  }
+  .config-bar select:focus { border-color: var(--gold); }
+  .config-divider { display: none; }
+
+  /* ── Summary Section ── */
+  .summary-section {
+    margin: 14px 12px 20px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .summary-title {
+    background: var(--blue);
+    color: rgba(255,255,255,0.85);
+    font-size: 10px;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    padding: 7px 14px;
+  }
+  .summary-row {
+    display: flex;
+    align-items: center;
+    padding: 9px 14px;
+    gap: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-lbl {
+    flex: 1;
+    font-size: 11px;
+    color: var(--ink);
+    font-style: italic;
+  }
+  .summary-rate-wrap {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .summary-rate-input {
+    width: 46px;
+    padding: 4px 5px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--ledger);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    text-align: center;
+    outline: none;
+  }
+  .summary-rate-input:focus { border-color: var(--gold); }
+  .summary-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    min-width: 90px;
+    text-align: right;
+  }
+  .summary-land { background: #f5f1e6; }
+  .summary-land .summary-val { color: var(--blue); font-size: 13px; }
+  .summary-divider {
+    height: 1px;
+    background: var(--rule);
+    margin: 0;
+  }
+  .summary-total .summary-val { color: var(--blue-lt); font-size: 13px; }
+  .summary-grand {
+    background: var(--ink);
+  }
+  .summary-grand .summary-lbl { color: rgba(255,255,255,0.7); font-style: italic; font-size: 10px; }
+  .summary-grand .summary-val { color: var(--gold); font-size: 14px; }
+
+  /* ── Print / PDF styles ── */
+  @media print {
+    .config-bar    { display: none !important; }
+    .add-btn-outer { display: none !important; }
+    .row-actions   { display: none !important; }
+    thead th:last-child { display: none !important; }
+    tbody td:last-child { display: none !important; }
+    tfoot td:last-child { display: none !important; }
+    * { -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Global rates config -->
+<div class="config-bar">
+  <span class="config-title">Default Units</span>
+  <label>
+    Area Unit
+    <select id="globalAreaUnit">
+      <option>Acre</option>
+      <option>Are</option>
+      <option>Cent</option>
+      <option>Hectare</option>
+      <option>Sq.Ft</option>
+      <option>Sq.m</option>
+    </select>
+  </label>
+  <label>
+    Guideline Value Unit
+    <select id="globalValueUnit">
+      <option>Acre</option>
+      <option>Are</option>
+      <option>Cent</option>
+      <option>Hectare</option>
+      <option>Sq.Ft</option>
+      <option>Sq.m</option>
+    </select>
+  </label>
+</div>
+
+<!-- Table -->
+<div class="table-outer">
+  <div class="table-wrap" id="tableWrap">
+    <div class="table-scaler" id="tableScaler">
+      <table id="mainTable">
+    <thead>
+      <tr>
+        <th style="width:22px">#</th>
+        <th style="width:80px">Survey/Subdiv</th>
+        <th style="width:65px">Area</th>
+        <th class="num" style="width:80px">Guideline Value</th>
+        <th class="num" style="width:80px">Land Value</th>
+        <th style="width:44px; text-align:center">Act</th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      <!-- rows injected here -->
+    </tbody>
+    <tfoot id="tfoot" style="display:none">
+      <tr>
+        <td colspan="4" class="tfoot-lbl">Total Land Value</td>
+        <td colspan="2" class="tfoot-val grand-amt" id="footLand">—</td>
+      </tr>
+    </tfoot>
+    </table>
+    </div><!-- /table-scaler -->
+  </div><!-- /table-wrap -->
+</div><!-- /table-outer -->
+
+<div class="add-btn-outer">
+  <button class="btn-add" onclick="addNewRow()">
+    <span class="plus">＋</span> Add New Entry
+  </button>
+</div>
+
+<!-- Summary / Calculation Section -->
+<div class="summary-section" id="summarySection" style="display:none">
+  <div class="summary-title">Registration Charges</div>
+
+  <div class="summary-row">
+    <span class="summary-lbl">Stamp Duty</span>
+    <div class="summary-rate-wrap">
+      <input type="number" class="summary-rate-input" id="sumStampPct" value="7" min="0" max="100" step="0.5" oninput="calcSummary()"> %
+    </div>
+    <span class="summary-val" id="sumStampAmt">—</span>
+  </div>
+
+  <div class="summary-row">
+    <span class="summary-lbl">Registration Fee</span>
+    <div class="summary-rate-wrap">
+      <input type="number" class="summary-rate-input" id="sumRegPct" value="2" min="0" max="100" step="0.5" oninput="calcSummary()"> %
+    </div>
+    <span class="summary-val" id="sumRegAmt">—</span>
+  </div>
+
+  <div class="summary-row summary-grand">
+    <span class="summary-lbl">Total Charges</span>
+    <span class="summary-val" id="sumTotal">—</span>
+  </div>
+</div>
+
+<script>
+let rows = [];
+let editingId = null;
+let confirmDeleteId = null;
+let nextId = 1;
+
+const UNITS = ['Acre','Are','Cent','Hectare','Sq.Ft','Sq.m'];
+
+// Conversion: all to Acre base
+// Rates from area_conversion.html (base: Are)
+// 1 Are = 0.0247105 Acre  →  1 Acre = 40.4686 Are
+function toAcre(v, u) {
+  switch(u) {
+    case 'Are':     return v * 0.0247105;
+    case 'Cent':    return v / 100;
+    case 'Hectare': return v * 2.47105;
+    case 'Sq.Ft':   return v / 43560;
+    case 'Sq.m':    return v / 4046.86;
+    default:        return v; // Acre
+  }
+}
+function fromAcre(a, u) {
+  switch(u) {
+    case 'Are':     return a / 0.0247105;
+    case 'Cent':    return a * 100;
+    case 'Hectare': return a / 2.47105;
+    case 'Sq.Ft':   return a * 43560;
+    case 'Sq.m':    return a * 4046.86;
+    default:        return a;
+  }
+}
+
+function calcRow(r) {
+  const acre = toAcre(r.area, r.areaUnit);
+  const converted = fromAcre(acre, r.valueUnit);
+  r.propValue = converted * r.guideValue;
+  r.landValue = r.propValue;
+}
+
+function fmt(n) {
+  if (!n && n !== 0) return '—';
+  return '₹' + Number(n.toFixed(0)).toLocaleString('en-IN');
+}
+function shortUnit(u) {
+  const map = { 'Hectare': 'Hect', 'Sq.Ft': 'SqFt', 'Sq.m': 'Sq.m' };
+  return map[u] || u;
+}
+
+function unitOpts(selected) {
+  return UNITS.map(u => `<option value="${u}" ${u===selected?'selected':''}>${u}</option>`).join('');
+}
+
+function getGlobalRates() {
+  return {
+    areaUnit:  document.getElementById('globalAreaUnit').value,
+    valueUnit: document.getElementById('globalValueUnit').value,
+  };
+}
+
+function render() {
+  const tbody = document.getElementById('tbody');
+  const tfoot = document.getElementById('tfoot');
+  let html = '';
+
+  if (rows.length === 0) {
+    html += `<tr><td colspan="6"><div class="empty-state">
+      <div class="icon">📋</div>
+      <p>No entries yet.<br>Tap <strong>Add New Entry</strong> below to start.</p>
+    </div></td></tr>`;
+  }
+
+  rows.forEach((r, i) => {
+    if (editingId === r.id) {
+      html += renderEditRow(r, i);
+    } else if (confirmDeleteId === r.id) {
+      html += renderDataRow(r, i);
+      html += renderConfirmRow(r);
+    } else {
+      html += renderDataRow(r, i);
+    }
+  });
+
+  tbody.innerHTML = html;
+  // Re-fit table after DOM update
+  requestAnimationFrame(autoFitTable);
+
+  // Footer totals
+  if (rows.length > 0) {
+    let totLand = 0;
+    rows.forEach(r => { totLand += r.landValue||0; });
+    document.getElementById('footLand').textContent = fmt(totLand);
+    tfoot.style.display = '';
+    document.getElementById('summarySection').style.display = '';
+    calcSummary();
+  } else {
+    tfoot.style.display = 'none';
+    document.getElementById('summarySection').style.display = 'none';
+  }
+}
+
+function renderDataRow(r, i) {
+  return `<tr class="data-row" id="dr-${r.id}">
+    <td><div class="cell" style="color:var(--muted);font-size:10px">${i+1}</div></td>
+    <td><div class="cell">
+      <span class="survey-text">${r.survey && r.subdiv ? r.survey+' / '+r.subdiv : r.survey || r.subdiv || '—'}</span>
+    </div></td>
+    <td><div class="cell area-text">${r.area} ${shortUnit(r.areaUnit)}</div></td>
+    <td class="num"><div class="cell">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink)">${fmt(r.propValue)}</span>
+      <span class="sub-text">Per ${shortUnit(r.valueUnit)}</span>
+    </div></td>
+    <td class="num"><div class="cell">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink)">${fmt(r.landValue)}</span>
+    </div></td>
+    <td><div class="cell">
+      <div class="row-actions">
+        <button class="act-btn" title="Edit" onclick="editRow(${r.id})">✏️</button>
+        <button class="act-btn" title="Duplicate" onclick="duplicateRow(${r.id})">📋</button>
+        <button class="act-btn" title="Delete" onclick="deleteRow(${r.id})">🗑️</button>
+      </div>
+    </div></td>
+  </tr>`;
+}
+
+function renderEditRow(r, i) {
+  return `<tr class="edit-row" id="er-${r.id}">
+    <td colspan="6">
+      <div class="edit-section" style="grid-template-columns:1fr 1fr;">
+        <div>
+          <span class="field-label">Survey Number</span>
+          <input class="row-input" id="e-survey-${r.id}" placeholder="e.g. 119" value="${r.survey}">
+        </div>
+        <div>
+          <span class="field-label">Subdivision</span>
+          <input class="row-input" id="e-subdiv-${r.id}" placeholder="e.g. 7" value="${r.subdiv||''}">
+        </div>
+        <div>
+          <span class="field-label">Area</span>
+          <div class="edit-inline">
+            <input class="row-input" type="number" id="e-area-${r.id}" placeholder="0.00" value="${r.area}" style="flex:1.5">
+            <select class="row-select" id="e-aunit-${r.id}" style="flex:1">${unitOpts(r.areaUnit)}</select>
+          </div>
+        </div>
+        <div>
+          <span class="field-label">Guideline Value</span>
+          <div class="edit-inline">
+            <input class="row-input" type="number" id="e-gval-${r.id}" placeholder="0" value="${r.guideValue}" style="flex:1.5">
+            <select class="row-select" id="e-vunit-${r.id}" style="flex:1">${unitOpts(r.valueUnit)}</select>
+          </div>
+        </div>
+      </div>
+      <div class="edit-actions">
+        <button class="btn-save" onclick="saveRow(${r.id})">Save Entry</button>
+        <button class="btn-cancel" onclick="cancelEdit(${r.id})">Cancel</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function addNewRow() {
+  const rates = getGlobalRates();
+  const newRow = {
+    id: nextId++,
+    survey: '',
+    subdiv: '',
+    area: '',
+    areaUnit: rates.areaUnit,
+    guideValue: '',
+    valueUnit: rates.valueUnit,
+    propValue: 0, landValue: 0
+  };
+  rows.push(newRow);
+  editingId = newRow.id;
+  render();
+  // Scroll to new row
+  setTimeout(() => {
+    const el = document.getElementById(`er-${newRow.id}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const inp = document.getElementById(`e-survey-${newRow.id}`);
+    if (inp) inp.focus();
+  }, 50);
+}
+
+function editRow(id) {
+  editingId = id;
+  confirmDeleteId = null;
+  render();
+  setTimeout(() => {
+    const el = document.getElementById(`er-${id}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const inp = document.getElementById(`e-survey-${id}`);
+    if (inp) inp.focus();
+  }, 50);
+}
+
+function cancelEdit(id) {
+  const r = rows.find(x => x.id === id);
+  // If unsaved (no area/value), remove it
+  if (r && !r.area && !r.guideValue) {
+    rows = rows.filter(x => x.id !== id);
+  }
+  editingId = null;
+  render();
+}
+
+function saveRow(id) {
+  const r = rows.find(x => x.id === id);
+  if (!r) return;
+
+  const survey = document.getElementById(`e-survey-${id}`).value.trim();
+  const subdiv = document.getElementById(`e-subdiv-${id}`).value.trim();
+  const area   = parseFloat(document.getElementById(`e-area-${id}`).value);
+  const aunit  = document.getElementById(`e-aunit-${id}`).value;
+  const gval   = parseFloat(document.getElementById(`e-gval-${id}`).value);
+  const vunit  = document.getElementById(`e-vunit-${id}`).value;
+
+  if (!survey || !subdiv || !area || !gval) {
+    const missing = !survey ? `e-survey-${id}` : !subdiv ? `e-subdiv-${id}` : !area ? `e-area-${id}` : `e-gval-${id}`;
+    document.getElementById(missing).focus();
+    document.getElementById(missing).style.borderColor = 'var(--accent)';
+    setTimeout(() => document.getElementById(missing).style.borderColor = '', 1200);
+    return;
+  }
+
+  r.survey = survey;
+  r.subdiv = subdiv;
+  r.area = area;
+  r.areaUnit = aunit;
+  r.guideValue = gval;
+  r.valueUnit = vunit;
+
+  calcRow(r);
+  editingId = null;
+  render();
+}
+
+function renderConfirmRow(r) {
+  return `<tr class="confirm-row">
+    <td colspan="6">
+      <div class="confirm-inner">
+        <span class="confirm-msg">Delete "${r.survey || 'this entry'}"?</span>
+        <div class="confirm-btns">
+          <button class="btn-confirm-yes" onclick="confirmDelete(${r.id})">Delete</button>
+          <button class="btn-confirm-no"  onclick="cancelDelete()">Cancel</button>
+        </div>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function deleteRow(id) {
+  confirmDeleteId = id;
+  render();
+}
+
+function confirmDelete(id) {
+  rows = rows.filter(x => x.id !== id);
+  if (editingId === id) editingId = null;
+  confirmDeleteId = null;
+  render();
+}
+
+function cancelDelete() {
+  confirmDeleteId = null;
+  render();
+}
+
+function duplicateRow(id) {
+  const r = rows.find(x => x.id === id);
+  if (!r) return;
+  const newRow = { ...r, id: nextId++ };
+  // Insert immediately after the source row
+  const idx = rows.findIndex(x => x.id === id);
+  rows.splice(idx + 1, 0, newRow);
+  confirmDeleteId = null;
+  editingId = null;
+  render();
+}
+
+function calcSummary() {
+  const totLand = rows.reduce((s, r) => s + (r.landValue||0), 0);
+  const stampPct = parseFloat(document.getElementById('sumStampPct').value) || 0;
+  const regPct   = parseFloat(document.getElementById('sumRegPct').value) || 0;
+  const stampAmt = totLand * stampPct / 100;
+  const regAmt   = totLand * regPct / 100;
+  const charges  = stampAmt + regAmt;
+
+  document.getElementById('sumStampAmt').textContent = fmt(stampAmt);
+  document.getElementById('sumRegAmt').textContent   = fmt(regAmt);
+  document.getElementById('sumTotal').textContent    = fmt(charges);
+}
+
+// ── Auto-fit table to container width ──
+let currentScale = 1;
+
+function autoFitTable() {
+  const wrap = document.getElementById('tableWrap');
+  const scaler = document.getElementById('tableScaler');
+  if (!scaler || !wrap) return;
+  // Reset to natural size to measure true width
+  scaler.style.transform = '';
+  const naturalW = scaler.scrollWidth;
+  const availW   = wrap.clientWidth;
+  if (naturalW > availW) {
+    currentScale = availW / naturalW;
+    scaler.style.transform = `scale(${currentScale})`;
+    scaler.style.transformOrigin = 'top left';
+    // Collapse wrapper height to scaled height
+    scaler.style.width = naturalW + 'px';
+    wrap.style.height  = (scaler.scrollHeight * currentScale) + 'px';
+  } else {
+    currentScale = 1;
+    scaler.style.width = '100%';
+    wrap.style.height  = '';
+  }
+}
+
+// ── Persist default values across sessions ──
+const STORAGE_KEY = 'regCalcDefaults';
+
+function saveDefaults() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      areaUnit:  document.getElementById('globalAreaUnit').value,
+      valueUnit: document.getElementById('globalValueUnit').value,
+    }));
+  } catch(e) {}
+}
+
+function restoreDefaults() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!saved) return;
+    if (saved.areaUnit)  document.getElementById('globalAreaUnit').value = saved.areaUnit;
+    if (saved.valueUnit) document.getElementById('globalValueUnit').value = saved.valueUnit;
+  } catch(e) {}
+}
+
+// Attach change listeners only to fields that exist
+['globalAreaUnit','globalValueUnit'].forEach(id => {
+  document.getElementById(id).addEventListener('change', saveDefaults);
+});
+
+// Pinch zoom via touch events on the table wrapper
+document.addEventListener('DOMContentLoaded', () => {
+  autoFitTable();
+});
+
+// Re-fit on orientation change
+window.addEventListener('resize', autoFitTable);
+
+// ── Fix inline transform before printing so table is visible in PDF ──
+window.addEventListener('beforeprint', () => {
+  const wrap   = document.getElementById('tableWrap');
+  const scaler = document.getElementById('tableScaler');
+  if (scaler) {
+    scaler.dataset.savedTransform = scaler.style.transform;
+    scaler.dataset.savedWidth     = scaler.style.width;
+    scaler.style.transform = 'none';
+    scaler.style.width     = '100%';
+  }
+  if (wrap) {
+    wrap.dataset.savedHeight   = wrap.style.height;
+    wrap.style.height   = 'auto';
+    wrap.style.overflow = 'visible';
+  }
+});
+
+window.addEventListener('afterprint', () => {
+  const wrap   = document.getElementById('tableWrap');
+  const scaler = document.getElementById('tableScaler');
+  if (scaler) {
+    scaler.style.transform = scaler.dataset.savedTransform || '';
+    scaler.style.width     = scaler.dataset.savedWidth     || '';
+  }
+  if (wrap) {
+    wrap.style.height   = wrap.dataset.savedHeight || '';
+    wrap.style.overflow = '';
+  }
+});
+
+// Restore saved defaults then render
+restoreDefaults();
+render();
+</script>
+</body>
+</html>
