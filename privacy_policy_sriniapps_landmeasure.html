@@ -14,7 +14,6 @@
       line-height: 1.7;
     }
 
-    /* ── Header ── */
     header {
       background: #1A3A6E;
       color: #fff;
@@ -22,27 +21,22 @@
       text-align: center;
     }
     header .app-icon {
-      width: 72px;
-      height: 72px;
+      width: 72px; height: 72px;
       background: #fff;
       border-radius: 18px;
       margin: 0 auto 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       font-size: 36px;
     }
     header h1 { font-size: 26px; font-weight: 700; letter-spacing: 0.3px; }
     header p  { font-size: 14px; opacity: 0.8; margin-top: 6px; }
 
-    /* ── Content wrapper ── */
     .container {
       max-width: 760px;
       margin: 36px auto;
       padding: 0 20px 60px;
     }
 
-    /* ── Effective date bar ── */
     .effective-bar {
       background: #E3F2FD;
       border-left: 4px solid #1A3A6E;
@@ -53,7 +47,18 @@
       margin-bottom: 32px;
     }
 
-    /* ── Section cards ── */
+    .intro-box {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      font-size: 15px;
+      color: #444;
+      line-height: 1.9;
+      border: 1px solid #e8eeff;
+    }
+
     .card {
       background: #fff;
       border-radius: 12px;
@@ -63,24 +68,25 @@
     }
 
     .card h2 {
-      font-size: 17px;
-      font-weight: 700;
+      font-size: 17px; font-weight: 700;
       color: #1A3A6E;
       margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      display: flex; align-items: center; gap: 10px;
     }
     .card h2 .icon {
-      width: 32px;
-      height: 32px;
+      width: 32px; height: 32px;
       border-radius: 8px;
       background: #E3F2FD;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+
+    h3 {
+      font-size: 13px; font-weight: 700;
+      color: #1A3A6E;
+      margin: 18px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .card p  { font-size: 15px; margin-bottom: 10px; color: #444; }
@@ -90,46 +96,67 @@
     ul li { font-size: 15px; color: #444; margin-bottom: 6px; }
     ul li:last-child { margin-bottom: 0; }
 
-    /* ── Permission table ── */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
+    .highlight-box {
+      background: #E3F2FD;
+      border-left: 3px solid #1A3A6E;
+      border-radius: 4px;
+      padding: 14px 18px;
+      margin: 14px 0;
       font-size: 14px;
+      color: #1A3A6E;
+    }
+
+    .green-box {
+      background: #F0FFF4;
+      border-left: 3px solid #2e7d32;
+      border-radius: 4px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 14px;
+      color: #1B5E20;
+    }
+
+    .no-list, .yes-list {
+      display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0;
+    }
+    .no-tag {
+      background: #FFF3F3; border: 1px solid #FFCDD2;
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 13px; color: #C62828; font-weight: 600;
+    }
+    .yes-tag {
+      background: #F0FFF4; border: 1px solid #A5D6A7;
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 13px; color: #1B5E20; font-weight: 600;
+    }
+
+    table {
+      width: 100%; border-collapse: collapse;
+      margin-top: 12px; font-size: 14px;
     }
     th {
-      background: #1A3A6E;
-      color: #fff;
-      padding: 10px 14px;
-      text-align: left;
-      font-weight: 600;
+      background: #1A3A6E; color: #fff;
+      padding: 10px 14px; text-align: left; font-weight: 600;
     }
     th:first-child { border-radius: 8px 0 0 0; }
     th:last-child  { border-radius: 0 8px 0 0; }
-    td { padding: 10px 14px; border-bottom: 1px solid #eee; vertical-align: top; }
+    td { padding: 10px 14px; border-bottom: 1px solid #eee; vertical-align: top; color: #444; }
     tr:last-child td { border-bottom: none; }
     tr:nth-child(even) td { background: #fafafa; }
 
-    /* ── Contact card ── */
     .contact-card {
-      background: #1A3A6E;
-      color: #fff;
-      border-radius: 12px;
-      padding: 28px;
-      text-align: center;
-      margin-top: 32px;
+      background: #1A3A6E; color: #fff;
+      border-radius: 12px; padding: 32px;
+      text-align: center; margin-top: 32px;
     }
-    .contact-card h2 { color: #fff; font-size: 18px; margin-bottom: 8px; }
-    .contact-card p  { color: rgba(255,255,255,0.85); font-size: 15px; }
+    .contact-card h2 { color: #fff; font-size: 18px; margin-bottom: 10px; justify-content: center; }
+    .contact-card p  { color: rgba(255,255,255,0.85); font-size: 15px; margin-bottom: 6px; }
     .contact-card a  { color: #FF9800; text-decoration: none; font-weight: 600; }
     .contact-card a:hover { text-decoration: underline; }
 
-    /* ── Footer ── */
     footer {
-      text-align: center;
-      font-size: 13px;
-      color: #888;
-      padding: 24px 16px;
+      text-align: center; font-size: 13px;
+      color: #888; padding: 24px 16px;
     }
 
     @media (max-width: 480px) {
@@ -141,83 +168,104 @@
 </head>
 <body>
 
-<!-- ════════════════════════════════ HEADER ════════════════════════════════ -->
 <header>
   <div class="app-icon">📐</div>
   <h1>GPS Land Area Measure</h1>
   <p>Privacy Policy</p>
 </header>
 
-<!-- ════════════════════════════════ BODY ════════════════════════════════ -->
 <div class="container">
 
   <div class="effective-bar">
-    <strong>Effective Date:</strong> April 27, 2026 &nbsp;|&nbsp;
-    <strong>Last Updated:</strong> April 27, 2026
+    📅 <strong>Last Updated:</strong> April 27, 2026 &nbsp;·&nbsp;
+    <strong>Effective Date:</strong> April 27, 2026
   </div>
 
-  <!-- 1. Introduction -->
-  <div class="card">
-    <h2><span class="icon">👋</span> Introduction</h2>
-    <p>
-      Welcome to <strong>GPS Land Area Measure</strong>. This Privacy Policy explains how we
-      collect, use, and protect your information when you use our mobile application.
-    </p>
-    <p>
-      By using GPS Land Area Measure, you agree to the practices described in this policy.
-      If you do not agree, please uninstall the application and discontinue use.
-    </p>
+  <div class="intro-box">
+    <strong>Your privacy matters to us.</strong> This Privacy Policy explains how
+    <strong>GPS Land Area Measure</strong> ("we", "our", or "the app") collects,
+    uses, stores and protects your information when you use our Android application.
+    <br><br>
+    By downloading or using GPS Land Area Measure, you agree to the practices
+    described in this policy. Please read it carefully. If you do not agree,
+    please do not use the app.
   </div>
 
-  <!-- 2. Information We Collect -->
+  <!-- 1. Information We Collect -->
   <div class="card">
-    <h2><span class="icon">📋</span> Information We Collect</h2>
+    <h2><span class="icon">📋</span> 1. Information We Collect</h2>
 
-    <p><strong>2.1 Account Information</strong></p>
-    <p>
-      When you sign in using Google Sign-In, we receive your Google account
-      name, email address, and profile photo from Google. This information is
-      used solely to identify your account within the app.
-    </p>
+    <h3>A. Account Information (Optional)</h3>
+    <p>If you choose to sign in with Google, we receive:</p>
+    <ul>
+      <li>Your Google account name</li>
+      <li>Your Google email address</li>
+      <li>Your Google User ID (a unique identifier)</li>
+      <li>Your profile picture (display purposes only)</li>
+    </ul>
+    <div class="highlight-box">
+      ℹ️ Google Sign-In is completely optional. You can use the app fully in
+      Guest Mode without providing any personal information.
+    </div>
 
-    <p><strong>2.2 Location Data</strong></p>
-    <p>
-      The app collects your precise GPS location to:
-    </p>
+    <h3>B. Location Data</h3>
+    <p>The app collects your precise GPS location to:</p>
     <ul>
       <li>Record field boundaries, walking paths, and marker positions</li>
       <li>Display your current position on the map</li>
       <li>Calculate area, perimeter, and distance measurements</li>
     </ul>
-    <p>
-      Location data is used only within the app and stored locally on your device.
-      We do not transmit your location to our servers.
-    </p>
+    <p>Location data is stored locally on your device only. We do not transmit your location to our servers.</p>
 
-    <p><strong>2.3 Photos</strong></p>
-    <p>
-      If you attach a photo to a measurement, the image is stored locally on
-      your device. Photos are not uploaded to any server unless you explicitly
-      use a sharing or export feature.
-    </p>
+    <h3>C. Measurement Data</h3>
+    <p>All measurements (areas, lengths, locations), categories, names, descriptions,
+    and notes you create are stored locally on your device using a private database.
+    This data is not transmitted externally.</p>
 
-    <p><strong>2.4 Measurement Data</strong></p>
-    <p>
-      All measurements (fields, distances, markers), groups, names, descriptions,
-      and notes you create are stored locally on your device using a private
-      database. This data is not transmitted externally.
-    </p>
+    <h3>D. Photos</h3>
+    <p>If you attach a photo to a measurement, the image is stored locally on
+    your device. Photos are not uploaded to any server.</p>
   </div>
 
-  <!-- 3. Permissions -->
+  <!-- 2. How We Use Your Information -->
   <div class="card">
-    <h2><span class="icon">🔐</span> App Permissions</h2>
+    <h2><span class="icon">⚙️</span> 2. How We Use Your Information</h2>
+    <p>We use the information you provide solely to operate the app and deliver its features:</p>
+    <ul>
+      <li>Display your measurements, categories, and saved locations in the app</li>
+      <li>Calculate area, perimeter, and distance using your GPS coordinates</li>
+      <li>Show your current position on the map</li>
+      <li>Associate your data with your account when signed in (Google User ID)</li>
+      <li>Enable sharing and export of your measurement data</li>
+    </ul>
+    <div class="green-box">
+      ✅ We use your data only to provide the service you asked for. Nothing else. Ever.
+    </div>
+  </div>
+
+  <!-- 3. What We NEVER Do -->
+  <div class="card">
+    <h2><span class="icon">🚫</span> 3. What We NEVER Do</h2>
+    <p>We want to be crystal clear about what we do not do with your data:</p>
+    <div class="no-list">
+      <span class="no-tag">✗ No data selling</span>
+      <span class="no-tag">✗ No data sharing</span>
+      <span class="no-tag">✗ No advertising</span>
+      <span class="no-tag">✗ No third-party tracking</span>
+      <span class="no-tag">✗ No analytics profiling</span>
+      <span class="no-tag">✗ No marketing emails</span>
+      <span class="no-tag">✗ No behaviour tracking</span>
+    </div>
+    <p>Your measurement data is private. We will never sell, rent, lease or share
+    your personal information with any third party for commercial purposes.</p>
+  </div>
+
+  <!-- 4. App Permissions -->
+  <div class="card">
+    <h2><span class="icon">🔐</span> 4. App Permissions</h2>
     <table>
       <thead>
-        <tr>
-          <th>Permission</th>
-          <th>Why It Is Needed</th>
-        </tr>
+        <tr><th>Permission</th><th>Why It Is Needed</th></tr>
       </thead>
       <tbody>
         <tr>
@@ -240,17 +288,48 @@
     </table>
   </div>
 
-  <!-- 4. Third-Party Services -->
+  <!-- 5. Data Storage & Security -->
   <div class="card">
-    <h2><span class="icon">🔗</span> Third-Party Services</h2>
-    <p>GPS Land Area Measure integrates the following third-party services, each governed by its own privacy policy:</p>
+    <h2><span class="icon">🛡️</span> 5. Data Storage &amp; Security</h2>
+
+    <h3>Local Storage</h3>
+    <p>All measurements, photos, and categories are stored locally on your device
+    using Android's private app storage (Room/SQLite database). This data is
+    accessible only by the GPS Land Area Measure app on your device.</p>
+
+    <h3>Cloud Storage (Google Sign-In Only)</h3>
+    <p>If you choose to sign in with Google, your account session is managed by
+    <strong>Firebase Authentication</strong> — a secure, encrypted, enterprise-grade
+    service operated by Google LLC.</p>
+    <ul>
+      <li>All data transmitted to Firebase is encrypted in transit (TLS/SSL)</li>
+      <li>Data stored in Firebase is encrypted at rest</li>
+      <li>Firebase complies with ISO 27001, SOC 1, SOC 2, and SOC 3 standards</li>
+      <li>We do NOT store your Google password or authentication credentials</li>
+    </ul>
+
+    <h3>Guest Mode</h3>
+    <p>In Guest Mode, all data stays exclusively on your device. Nothing is
+    uploaded to any server.</p>
+
+    <div class="highlight-box">
+      🔒 We implement industry-standard security practices to protect your data.
+      We recommend keeping your device secured with a PIN, pattern, or biometric lock.
+    </div>
+  </div>
+
+  <!-- 6. Third-Party Services -->
+  <div class="card">
+    <h2><span class="icon">🔗</span> 6. Third-Party Services</h2>
+    <p>GPS Land Area Measure integrates the following trusted third-party services,
+    each governed by its own privacy policy:</p>
     <ul>
       <li>
         <strong>Google Maps SDK</strong> — Displays map tiles and provides geocoding.
         <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>
       </li>
       <li>
-        <strong>Google Sign-In</strong> — Provides authentication.
+        <strong>Google Sign-In</strong> — Provides account authentication.
         <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>
       </li>
       <li>
@@ -258,99 +337,133 @@
         <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy Policy</a>
       </li>
     </ul>
-    <p>
-      We do not sell, rent, or share your personal information with any other third parties.
-    </p>
+    <p>We do not use any advertising SDKs, analytics platforms, crash reporters,
+    or any other third-party tracking tools.</p>
   </div>
 
-  <!-- 5. Data Storage & Security -->
+  <!-- 7. Data Retention -->
   <div class="card">
-    <h2><span class="icon">🛡️</span> Data Storage &amp; Security</h2>
-    <p>
-      All measurement data, photos, and groups are stored locally on your device
-      using Android's private app storage. No measurement data is sent to external
-      servers.
-    </p>
-    <p>
-      Account authentication is handled entirely by Firebase Authentication and
-      Google Sign-In — we do not store your Google password or authentication
-      credentials on our servers.
-    </p>
-    <p>
-      While we implement reasonable security measures, no method of electronic
-      storage is 100% secure. We encourage you to keep your device secure with
-      a screen lock.
-    </p>
-  </div>
-
-  <!-- 6. Data Retention -->
-  <div class="card">
-    <h2><span class="icon">🗂️</span> Data Retention</h2>
-    <p>
-      Measurement data is retained on your device until you delete it within
-      the app or uninstall the application. Uninstalling the app removes all
-      locally stored data permanently.
-    </p>
-    <p>
-      Firebase Authentication retains your sign-in session data. You can sign
-      out at any time from the app's navigation menu, which removes the local
-      session.
-    </p>
-  </div>
-
-  <!-- 7. Children's Privacy -->
-  <div class="card">
-    <h2><span class="icon">👶</span> Children's Privacy</h2>
-    <p>
-      GPS Land Area Measure is not directed at children under the age of 13.
-      We do not knowingly collect personal information from children under 13.
-      If you believe a child has provided us with personal information, please
-      contact us and we will delete it promptly.
-    </p>
+    <h2><span class="icon">🗂️</span> 7. Data Retention</h2>
+    <ul>
+      <li>
+        <strong>Local data:</strong> Stored on your device until you delete it within
+        the app or uninstall the application. Uninstalling removes all local data permanently.
+      </li>
+      <li>
+        <strong>Account data (Google Sign-In):</strong> Firebase Authentication retains
+        your sign-in session. You can sign out at any time from the navigation menu.
+        If you request full account deletion, all associated data will be permanently
+        deleted within <strong>30 days</strong>.
+      </li>
+      <li>
+        <strong>Guest data:</strong> Stored only on your device. Deleted when you
+        uninstall the app or clear app data from phone settings.
+      </li>
+    </ul>
   </div>
 
   <!-- 8. Your Rights -->
   <div class="card">
-    <h2><span class="icon">✅</span> Your Rights</h2>
-    <p>You have the right to:</p>
+    <h2><span class="icon">✅</span> 8. Your Rights &amp; Choices</h2>
+    <p>You have full control over your data at all times:</p>
+    <div class="yes-list">
+      <span class="yes-tag">✓ Access your data</span>
+      <span class="yes-tag">✓ Edit your data</span>
+      <span class="yes-tag">✓ Delete your data</span>
+      <span class="yes-tag">✓ Use Guest Mode</span>
+      <span class="yes-tag">✓ Sign out anytime</span>
+    </div>
+
+    <h3>How to Delete Individual Data</h3>
     <ul>
-      <li><strong>Access</strong> — View all data stored by the app within the app itself.</li>
-      <li><strong>Delete</strong> — Delete individual measurements, groups, or photos at any time.</li>
-      <li><strong>Sign Out</strong> — Sign out of your Google account from the navigation menu at any time.</li>
-      <li><strong>Uninstall</strong> — Uninstalling the app removes all locally stored data from your device.</li>
+      <li><strong>Delete a measurement:</strong> Open the measurement detail screen → tap the delete button.</li>
+      <li><strong>Delete a category:</strong> Go to Categories → long press → Delete.</li>
+      <li><strong>Delete all local data:</strong> Phone Settings → Apps → GPS Land Area Measure → Clear Data.</li>
     </ul>
+
+    <h3>Account &amp; Data Deletion Request</h3>
+    <p>You may request deletion of your account and all associated data at any time.
+    We will process your request within <strong>30 days</strong>.</p>
+
+    <p><strong>What gets deleted:</strong></p>
+    <ul>
+      <li>Your Google Sign-In account link</li>
+      <li>All saved measurements (areas, lengths, locations)</li>
+      <li>All categories and groups</li>
+      <li>Photos attached to measurements</li>
+      <li>Any synced data stored in our database</li>
+    </ul>
+
+    <div class="highlight-box">
+      📧 To request account deletion, email us at
+      <strong>srinivasalu.na@gmail.com</strong> with subject:<br/>
+      <em>"Delete My Account – GPS Land Area Measure"</em><br/>
+      Please include the email address linked to your Google account.
+    </div>
+
+    <p style="font-size:14px; color:#666; margin-top:10px;">
+      Note: Local offline data stored only on your device must be cleared manually
+      via Phone Settings → Apps → GPS Land Area Measure → Clear Data.
+    </p>
   </div>
 
-  <!-- 9. Changes to This Policy -->
+  <!-- 9. Children's Privacy -->
   <div class="card">
-    <h2><span class="icon">📝</span> Changes to This Policy</h2>
-    <p>
-      We may update this Privacy Policy from time to time. When we do, we will
-      update the <strong>Last Updated</strong> date at the top of this page.
-      We encourage you to review this policy periodically.
-    </p>
-    <p>
-      Continued use of the app after changes are posted constitutes your
-      acceptance of the updated policy.
-    </p>
+    <h2><span class="icon">👶</span> 9. Children's Privacy</h2>
+    <p>GPS Land Area Measure is not directed at children under the age of 13.
+    We do not knowingly collect personal information from children under 13.</p>
+    <p>If you are a parent or guardian and believe your child has provided us
+    with personal information, please contact us at <strong>srinivasalu.na@gmail.com</strong>
+    and we will delete that information promptly.</p>
+  </div>
+
+  <!-- 10. Changes to This Policy -->
+  <div class="card">
+    <h2><span class="icon">📝</span> 10. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. When we make changes, we will:</p>
+    <ul>
+      <li>Update the "Last Updated" date at the top of this page</li>
+      <li>Post the updated policy at the same URL</li>
+    </ul>
+    <p>Continued use of the app after changes are posted constitutes your
+    acceptance of the updated policy. We encourage you to review this policy periodically.</p>
+  </div>
+
+  <!-- 11. Governing Law -->
+  <div class="card">
+    <h2><span class="icon">⚖️</span> 11. Governing Law</h2>
+    <p>This Privacy Policy is governed by and construed in accordance with the
+    laws of India. Any disputes relating to this policy shall be subject to the
+    exclusive jurisdiction of the courts of India.</p>
+    <p>For users in the European Union: We comply with the General Data Protection
+    Regulation (GDPR) to the extent applicable. You have the right to access,
+    rectify, erase, and port your personal data. Contact us to exercise these rights.</p>
+    <p>For users in California, USA: We comply with the California Consumer Privacy
+    Act (CCPA) to the extent applicable.</p>
   </div>
 
   <!-- Contact -->
   <div class="contact-card">
-    <h2>Contact Us</h2>
-    <p>
-      If you have any questions or concerns about this Privacy Policy,
-      please contact us at:
-    </p>
-    <p style="margin-top: 12px;">
-      <a href="mailto:srinivasalu.na@gmail.com">srinivasalu.na@gmail.com</a>
+    <h2>📧 Contact Us</h2>
+    <p>Have questions about this Privacy Policy? We are here to help.</p>
+    <br>
+    <p><strong>App:</strong> GPS Land Area Measure</p>
+    <p><strong>Developer:</strong> Srini Apps</p>
+    <p><strong>Email:</strong> <a href="mailto:srinivasalu.na@gmail.com">srinivasalu.na@gmail.com</a></p>
+    <p><strong>Response time:</strong> Within 48 hours</p>
+    <br>
+    <p style="font-size:13px; opacity:0.75;">
+      For account &amp; data deletion requests, email with subject:<br>
+      <em>"Delete My Account – GPS Land Area Measure"</em><br>
+      We will process your request within 30 days.
     </p>
   </div>
 
 </div>
 
 <footer>
-  &copy; 2026 Srini Apps. All rights reserved.
+  <p>© 2026 Srini Apps. All rights reserved.</p>
+  <p style="margin-top:6px;">This Privacy Policy was last updated on April 27, 2026.</p>
 </footer>
 
 </body>
